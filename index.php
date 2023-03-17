@@ -193,28 +193,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
                 );
             }
         }
-        $mastodonClient = HttpClientBuilder::buildDefault();
-        $request = new \Amp\Http\Client\Request(
-            $_GET['mastodon_host'] . '/' . $mastodonRequestUri . '?' . http_build_query($_GET),
-            $_SERVER['REQUEST_METHOD'],
-        );
-        $request->setHeaders(array_filter(getallheaders(), function ($header) {
-            return !in_array($header, ['Host']);
-        }, ARRAY_FILTER_USE_KEY));
 
-        $response = null;
-
-        \Amp\Loop::run(function () use (&$response, $mastodonClient, $request) {
-            $result = yield $mastodonClient->request($request);
-
-            $response = new \Amp\Http\Server\Response(
-                $result->getStatus(),
-                $result->getHeaders(),
-                yield $result->getBody()->buffer()
-            );
-        });
-
-        return $response;
+        return new \Amp\Http\Server\Response(302, ['Location' => $_GET['mastodon_host'] . '/' . $mastodonRequestUri . '?' . $query]);
     });
 });
 
