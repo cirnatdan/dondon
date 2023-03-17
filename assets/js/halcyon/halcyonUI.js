@@ -1088,23 +1088,23 @@ $("#js-profile_nav_favourites a").show();
 } else {
 $("#profile_toot_buttons").show();
 api.get('accounts/relationships', [{name:'id', data:String(AccountObj.id)}], function(RelationshipObj) {
-if (RelationshipObj[0].followed_by) {
+if (RelationshipObj.length > 0 && RelationshipObj[0].followed_by) {
 $('#main .profile_username .profile_followed_by').removeClass('invisible');
 }
-if (RelationshipObj[0].blocking) {
+if (RelationshipObj.length > 0 && RelationshipObj[0].blocking) {
 $(`<button class="blocking_button relationship_button" mid="${AccountObj.id}">
 <span>${__('Blocking')}</span>
 </button>`).appendTo('.profile_button_box');
-} else if (RelationshipObj[0].muting) {
+} else if (RelationshipObj.length > 0 && RelationshipObj[0].muting) {
 $(`<button class="muting_button relationship_button" mid="${AccountObj.id}">
 <span>${__('Muting')}</span>
 </button>`).appendTo('.profile_button_box');
-} else if (RelationshipObj[0].requested) {
+} else if (RelationshipObj.length > 0 && RelationshipObj[0].requested) {
 $(`<!-- wont work -->
 <button class="requested_button relationship_button" mid="${AccountObj.id}">
 <span>${__('Requested')}</span>
 </button>`).appendTo('.profile_button_box');
-} else if(RelationshipObj[0].following){
+} else if(RelationshipObj.length > 0 && RelationshipObj[0].following){
 $(`<button class="following_button relationship_button" mid="${AccountObj.id}">
 <span>${__('Following')}</span>
 </button>`).appendTo('.profile_button_box');

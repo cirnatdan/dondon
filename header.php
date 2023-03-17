@@ -9,7 +9,7 @@ include("language.php");
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Halcyon</title>
 <link rel="shortcut icon" href="/assets/images/favicon.ico">
-<link rel="gettext" type="text/x-gettext-translation" href="/locale/<?=$locale?>/LC_MESSAGES/messages.po">
+<link rel="gettext" type="application/x-po" href="/locale/<?=$locale?>/LC_MESSAGES/messages.po">
 <link rel="stylesheet" href="/assets/css/style.css" media="all">
 <?php
 if(array_key_exists('darktheme',$_COOKIE)) {

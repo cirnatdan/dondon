@@ -5,6 +5,7 @@
 // but please don't hurt it (and keep this header)
 var MastodonAPI = function(config) {
 var apiBase = config.instance + "/api/v1/";
+var proxyBase = location.protocol + '//' + window.location.host + "/api/v1/"
 return {
 setConfig: function (key, value) {
 config[key] = value;
@@ -39,7 +40,7 @@ queryStringAppend += queryData[i].name + "="+ queryData[i].data + "&";
 }
 var xquerydata = queryData;
 $.ajax({
-url: apiBase + endpoint + queryStringAppend,
+url: proxyBase + endpoint + queryStringAppend + 'mastodon_host=' + encodeURIComponent(config.instance),
 type: "GET",
 headers: {"Authorization": "Bearer " + config.api_user_token},
 success: function(data, textStatus, xhr) {
@@ -356,9 +357,11 @@ queryStringAppend += queryData[i].name + "="+ queryData[i].data + "&";
 }
 var xquerydata = queryData;
 $.ajax({
-url: config.instance + "/api/v2/search?" + queryString + queryStringAppend,
+//url: config.instance + "/api/v2/search?" + queryString + queryStringAppend,
+url: "/api/v2/search?" + queryString + queryStringAppend + "&mastodon_host=" + config.instance,
 type: "GET",
 headers: {"Authorization": "Bearer " + config.api_user_token},
+timeout: 60000,
 success: function(data, textStatus, xhr) {
 console.log("Successful GET API request to " +config.instance + "/api/v2/search");
 responce_headers = xhr.getAllResponseHeaders();
@@ -381,7 +384,7 @@ location.href = "/logout";
 });
 },
 stream: function (streamType, onData) {
-var es = new WebSocket("wss://" + apiBase.substr(8) + "streaming/?access_token=" + config.api_user_token + "&stream=" + streamType);
+var es = new WebSocket("wss://" + apiBase.substr(7) + "streaming/?access_token=" + config.api_user_token + "&stream=" + streamType);
 var listener = function(event) {
 console.log("Got Data from Stream " + streamType);
 if(event.data.length != 0) {
@@ -398,6 +401,19 @@ if(event.target.readyState == 0) {
 api.stream(streamType,onData);
 }
 };
+},
+accountsLookup: function (username, callback) {
+    $.ajax(
+        {
+            url: '/api/v1/accounts/lookup' + '?acct=' + username,
+            type: 'GET',
+            headers: {"Authorization": "Bearer " + config.api_user_token},
+            success: function (data, textStatus, xhr){
+                console.log("Successful GET API request to " + "/api/v1/accounts/lookup");
+                callback(data);
+            }
+        },
+    );
 }
 };
 };

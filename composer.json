@@ -1,0 +1,15 @@
+{
+  "autoload": {
+    "psr-4": {
+      "": "src/"
+    }
+  },
+  "require": {
+    "ext-intl": "*",
+    "ext-gettext": "*",
+    "amphp/http-client": "^4.6",
+    "fabpot/goutte": "^4.0",
+    "ext-json": "*",
+    "amphp/http-server-router": "^1.0"
+  }
+}
