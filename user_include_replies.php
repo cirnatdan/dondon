@@ -99,11 +99,12 @@ $name = preg_split("/@/", $_GET['user'])[1];
 $domain = preg_split("/@/", $_GET['user'])[2];
 $url= "https://$domain/@$name";
 ?>
-const query = '<?= htmlspecialchars((string)filter_input(INPUT_GET, 'user'), ENT_QUOTES) ?>';
+const query = '<?= htmlspecialchars($_GET['user'], ENT_QUOTES) ?>';
 api.search('q='+encodeURIComponent(query)+"&resolve=true&limit=1",function(search) {
 if ( !search.accounts.length ) {
 location.href = "/404.php";
-} else if ("@"+search.accounts[0].acct === query || "@"+search.accounts[0].acct+"@"+localStorage.current_instance === query) {
+}
+else if("@"+search.accounts[0].acct.toLowerCase() === query.toLowerCase() || "@"+search.accounts[0].acct+"@"+localStorage.current_instance === query) {
 setAccount(search.accounts[0]);
 setTimeline("accounts/"+search.accounts[0].id+"/statuses",undefined,"true");
 setRecentImages(search.accounts[0].id);

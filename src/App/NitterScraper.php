@@ -66,10 +66,14 @@ class NitterScraper
         return [];
     }
 
-    public function getAccountTweets(string $username)
+    public function getAccountTweets(string $username, bool $withReplies = false)
     {
         $twitterUsername = explode('@', $username)[1];
-        $crawler = $this->goutteClient->request('GET', 'https://nitter.it/' . rawurlencode($twitterUsername));
+        $url = 'https://nitter.it/' . rawurlencode($twitterUsername);
+        if ($withReplies) {
+            $url .= '/with_replies';
+        }
+        $crawler = $this->goutteClient->request('GET', $url);
 
         $account = $this->lookupAccount($twitterUsername);
 

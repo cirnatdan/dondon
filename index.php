@@ -136,7 +136,16 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
-    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}', function () {
+    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/with_replies', function () {
+        preg_match('/@(.+)@(.+)\.([a-z]+)/', $_SERVER['REQUEST_URI'], $matches);
+        $_GET['user'] = $matches[0];
+        ob_start();
+        include ('user_include_replies.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+/?}', function () {
         preg_match('/@(.+)@(.+)\.([a-z]+)/', $_SERVER['REQUEST_URI'], $matches);
         $_GET['user'] = $matches[0];
         ob_start();
@@ -183,7 +192,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
                 }
 
                 return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'],
-                    json_encode($nitterScraper->getAccountTweets($accountId)),
+                    json_encode($nitterScraper->getAccountTweets($accountId, !boolval($_GET['exclude_replies'] ?? false))),
                 );
             }
         } elseif (preg_match('|/api/v1/accounts/relationships|', $mastodonRequestUri, $matches)) {
