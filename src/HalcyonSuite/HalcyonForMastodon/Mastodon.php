@@ -1,10 +1,10 @@
 <?php
 namespace HalcyonSuite\HalcyonForMastodon;
-require_once('mastodon-api/mastodon.php');
+
 class Mastodon extends \Mastodon_api {
 function __construct(){
-$appSettings = parse_ini_file('../config/config.ini',true);
-$this->datadir = "../data";
+$appSettings = parse_ini_file(__DIR__. '/../../../config/config.ini',true);
+$this->datadir = __DIR__ . "/../../../data";
 $this->clientName = $appSettings["App"]["api_client_name"];
 $this->clientRedirectUris = $appSettings["App"]["api_client_website"].'/auth';
 $this->clientWebsite = $appSettings["App"]["api_client_website"];

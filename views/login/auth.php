@@ -14,7 +14,7 @@ location.href = '/logout';
 <script src="/assets/js/mastodon.js/mastodon.js"></script>
 <script src="/assets/js/jquery-cookie/src/jquery.cookie.js"></script>
 <?php
-require_once('../authorize/mastodon.php');
+
 use HalcyonSuite\HalcyonForMastodon\Mastodon;
 $api = new Mastodon();
 if ($_GET['code']) {

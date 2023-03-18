@@ -39,8 +39,14 @@ queryStringAppend += queryData[i].name + "="+ queryData[i].data + "&";
 }
 }
 var xquerydata = queryData;
+let url = "";
+if (true === arguments[4]) {
+    url = apiBase + endpoint;
+} else {
+    url = proxyBase + endpoint;
+}
 $.ajax({
-url: proxyBase + endpoint + queryStringAppend + 'mastodon_host=' + encodeURIComponent(config.instance),
+url: url + queryStringAppend + 'mastodon_host=' + encodeURIComponent(config.instance),
 type: "GET",
 headers: {"Authorization": "Bearer " + config.api_user_token},
 success: function(data, textStatus, xhr) {
@@ -49,8 +55,8 @@ responce_headers = xhr.getAllResponseHeaders();
 callback(data,textStatus);
 },
 error: function(xhr, textStatus, errorThrown) {
-if(xhr.readyState == 0) {
-api.get(endpoint,queryStringAppend,callback);
+if(xhr.readyState === 0 || xhr.status === 421) {
+api.get(endpoint,queryStringAppend,callback, null, true);
 }
 else if(typeof failback == "function") failback();
 else {

@@ -5,8 +5,8 @@
 </a>
 </div>
 <?php
-if(file_exists("../config/footerlinks.txt")) {
-$footerlinks = json_decode(file_get_contents("../config/footerlinks.txt"));
+if(file_exists(__DIR__ . "/../../config/footerlinks.txt")) {
+$footerlinks = json_decode(file_get_contents(__DIR__. "/../../config/footerlinks.txt"));
 $haslinks = false;
 for($i=0;$i<count($footerlinks);$i++) {
 if($footerlinks[$i]->logout == true) {

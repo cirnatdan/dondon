@@ -41,7 +41,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
 
     $r->addRoute('GET', '/login', function () {
         ob_start();
-        chdir(__DIR__ . '/login');
+        chdir(__DIR__ . '/views/login');
         include ('login.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
@@ -50,7 +50,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/login', function () {
         error_log('LOGIN');
         ob_start();
-        chdir(__DIR__ . '/login');
+        chdir(__DIR__ . '/views/login');
         include ('login.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
@@ -58,7 +58,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
 
     $r->addRoute('GET', '/auth', function () {
         ob_start();
-        chdir(__DIR__ . '/login');
+        chdir(__DIR__ . '/views/login');
         include ('auth.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
@@ -66,7 +66,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
 
     $r->addRoute('GET', '/logout', function () {
         ob_start();
-        chdir(__DIR__ . '/login');
+        chdir(__DIR__ . '/views/login');
         include ('logout.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
@@ -102,8 +102,24 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
 
     $r->addRoute('GET', '/privacy', function () {
         ob_start();
-        chdir(__DIR__ . '/login');
+        chdir(__DIR__ . '/views/login');
         include ('privacy.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/terms', function () {
+        ob_start();
+        chdir(__DIR__ . '/views/login');
+        include ('terms.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/imprint', function () {
+        ob_start();
+        chdir(__DIR__ . '/views/login');
+        include ('imprint.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -203,7 +219,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
             }
         }
 
-        return new \Amp\Http\Server\Response(302, ['Location' => $_GET['mastodon_host'] . '/' . $mastodonRequestUri . '?' . $query]);
+        return new \Amp\Http\Server\Response(421, ['content-type' => 'text/html'], 'Not implemented');
     });
 });
 

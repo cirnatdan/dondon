@@ -211,7 +211,7 @@ height: 560px;
 padding: 56px 0;
 margin-bottom: -200px;
 box-sizing: border-box;
-background-image: url("/login/assets/images/background.jpg");
+background-image: url("/assets/login/images/background.jpg");
 background-size: cover;
 background-repeat: no-repeat;
 }

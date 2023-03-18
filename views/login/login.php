@@ -1,6 +1,5 @@
 <?php
-include("../language.php");
-require_once('../authorize/mastodon.php');
+include(__DIR__ . "/../../language.php");
 use HalcyonSuite\HalcyonForMastodon\Mastodon;
 if (isset($_POST['acct'])) {
 $domain = explode("@", mb_strtolower(htmlspecialchars((string)filter_input(INPUT_POST, 'acct'), ENT_QUOTES)))[2];
@@ -30,13 +29,13 @@ die();
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Halcyon</title>
 <link rel="shortcut icon" href="/assets/images/favicon.ico">
-<link rel="stylesheet" href="/login/assets/css/style.css" media="all">
+<link rel="stylesheet" href="/assets/login/css/style.css" media="all">
 <link rel="stylesheet" href="/assets/css/fontawesome.min.css" media="all">
 <link rel="stylesheet" href="/assets/css/cookieconsent.min.css">
 <script src="/assets/js/jquery/jquery.min.js"></script>
 <script src="/assets/js/cookieconsent/cookieconsent.min.js"></script>
 <script src="/assets/js/jquery-cookie/src/jquery.cookie.js"></script>
-<script src="/login/assets/js/halcyon_login.js"></script>
+<script src="/assets/login/js/halcyon_login.js"></script>
 <script>
 if(
 localStorage.getItem("current_id") |
@@ -53,7 +52,7 @@ location.href = "/";
 <div id="header_title_wrap" class="header_box header_right_box">
 <div class="header_box_child title_box">
 <a href="/">
-<img src="/login/assets/images/halcyon-title.png" alt="Halcyon for mastodon">
+<img src="/assets/login/images/halcyon-title.png" alt="Halcyon for mastodon">
 </a>
 </div>
 </div>
@@ -136,9 +135,9 @@ location.href = "/";
 </p>
 <div class="image_wrap">
 <ul>
-<li><img src="/login/assets/images/preview2.png" alt="halcyon_screenshot"></li>
-<li><img src="/login/assets/images/preview1.png" alt="halcyon_screenshot"></li>
-<li><img src="/login/assets/images/preview0.png" alt="halcyon_screenshot"></li>
+<li><img src="/assets/login/images/preview2.png" alt="halcyon_screenshot"></li>
+<li><img src="/assets/login/images/preview1.png" alt="halcyon_screenshot"></li>
+<li><img src="/assets/login/images/preview0.png" alt="halcyon_screenshot"></li>
 </ul>
 <button class="prev_button switch_button"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
 <button class="next_button switch_button"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
@@ -165,8 +164,8 @@ Liberapay: <a href="https://liberapay.com/nipos">Donate to @nipos</a>
 </div>
 <span>Photo by <a href="https://www.flickr.com/photos/95387826@N08/">Michio Morimoto on Flickr</a> (CC BY 2.0)</span><br/>
 <?php
-if(file_exists("../config/footerlinks.txt")) {
-$footerlinks = json_decode(file_get_contents("../config/footerlinks.txt"));
+if(file_exists(__DIR__ . "/../../config/footerlinks.txt")) {
+$footerlinks = json_decode(file_get_contents(__DIR__ . "/../../config/footerlinks.txt"));
 $haslinks = false;
 for($i=0;$i<count($footerlinks);$i++) {
 if($footerlinks[$i]->logout == true) {
@@ -185,7 +184,7 @@ echo "</span><br/>";
 }
 }
 ?>
-<span>Halcyon version <?php echo file_get_contents("../version.txt") ?></span>
+<span>Halcyon version <?php echo file_get_contents(__DIR__ . "/../../version.txt") ?></span>
 </footer>
 </body>
 <script>
