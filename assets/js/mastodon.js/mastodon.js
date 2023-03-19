@@ -362,9 +362,14 @@ queryStringAppend += queryData[i].name + "="+ queryData[i].data + "&";
 }
 }
 var xquerydata = queryData;
+let url = '';
+if (arguments[4] === true) {
+    url = config.instance + "/api/v2/search?";
+} else {
+    url = "/api/v2/search?";
+}
 $.ajax({
-//url: config.instance + "/api/v2/search?" + queryString + queryStringAppend,
-url: "/api/v2/search?" + queryString + queryStringAppend + "&mastodon_host=" + config.instance,
+url: url + queryString + queryStringAppend + "&mastodon_host=" + config.instance,
 type: "GET",
 headers: {"Authorization": "Bearer " + config.api_user_token},
 timeout: 60000,
@@ -374,8 +379,8 @@ responce_headers = xhr.getAllResponseHeaders();
 callback(data,textStatus);
 },
 error: function(xhr, textStatus, errorThrown) {
-if(xhr.readyState == 0) {
-api.search(queryString,queryStringAppend,callback);
+if(xhr.readyState == 0 || xhr.status === 421) {
+api.search(queryString,queryStringAppend,callback,null,true);
 }
 else if(typeof failback == "function") failback();
 else {
