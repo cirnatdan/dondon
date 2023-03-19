@@ -152,25 +152,33 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
-    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/with_replies', function () {
-        preg_match('/@(.+)@(.+)\.([a-z]+)/', $_SERVER['REQUEST_URI'], $matches);
-        $_GET['user'] = $matches[0];
+    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/with_replies', function (string $handle) {
+        $_GET['user'] = $handle;
         ob_start();
         include ('user_include_replies.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
-    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+/?}', function () {
+    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/status/{statusId}', function (string $handle, string $statusId) {
         preg_match('/@(.+)@(.+)\.([a-z]+)/', $_SERVER['REQUEST_URI'], $matches);
-        $_GET['user'] = $matches[0];
+        $_GET['user'] = $handle;
+        $_GET['status'] = $statusId;
+        ob_start();
+        include ('user_include_replies.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+/?}', function (string $handle) {
+        $_GET['user'] = $handle;
         ob_start();
         include ('user.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
-    $r->addRoute('GET', '/api/{param:.+}', function () {
+    $r->addRoute('GET', '/api/{param:.+}', function (string $param) {
         $url = parse_url($_SERVER['REQUEST_URI']);
         $query = $url['query'] ?? '';
         $mastodonRequestUri = str_replace('/mastodon/', '', $url['path']);
@@ -248,7 +256,7 @@ switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::FOUND:
         $handler = $routeInfo[1];
         $vars = $routeInfo[2];
-        $response = $handler();
+        $response = call_user_func_array($handler, $vars);
         http_response_code($response->getStatus());
         foreach ($response->getHeaders() as $header => $value) {
             header($header . ': ' . $value[0]);
