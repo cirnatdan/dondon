@@ -219,10 +219,29 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
                     json_encode($nitterScraper->getAccountTweets($accountId, !boolval($_GET['exclude_replies'] ?? false))),
                 );
             }
-        } elseif (preg_match('|/api/v1/accounts/relationships|', $mastodonRequestUri, $matches)) {
+        } elseif (preg_match('|/api/v1/accounts/@(.+)@twitter.com|', $mastodonRequestUri, $matches)) {
+            preg_match('/@(.+)@twitter.com/', $mastodonRequestUri, $matches);
+            return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'],
+                json_encode($nitterScraper->lookupAccount($matches[1])),
+            );
+        }elseif (preg_match('|/api/v1/accounts/relationships|', $mastodonRequestUri, $matches)) {
             if (preg_match('/@(.+)@twitter.com/', $query)) {
                 return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'],
                     json_encode([]),
+                );
+            }
+        } elseif (preg_match('|/api/v1/statuses/(.*)/context|', $mastodonRequestUri, $matches)) {
+            $statusId = $matches[1];
+            if (preg_match('/@(.+)@twitter.com/', $_SERVER['HTTP_REFERER'] ?? '', $matches)) {
+                return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'],
+                    json_encode($nitterScraper->getTweetContext($statusId)),
+                );
+            }
+        }elseif (preg_match('|/api/v1/statuses/(.*)/|', $mastodonRequestUri, $matches)) {
+            $statusId = $matches[1];
+            if (preg_match('/@(.+)@twitter.com/', $_SERVER['HTTP_REFERER'] ?? '', $matches)) {
+                return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'],
+                    json_encode($nitterScraper->getTweet($statusId)),
                 );
             }
         }

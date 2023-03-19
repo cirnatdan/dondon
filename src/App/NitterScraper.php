@@ -161,7 +161,6 @@ class NitterScraper
                                     ];
                                 }),
                                 $node->filter('.tweet-body > .attachments > .gallery-video > .video-container > video')->each(function (Crawler $node) use ($tweetID) {
-                                    error_log('VIDEO');
                                     return [
                                         'id' => $tweetID, // TODO add unique image ids
                                         'type' => 'video',
@@ -193,6 +192,85 @@ class NitterScraper
                 'poll' => null,
            ];
         });
+    }
+
+    public function getTweet(string $tweetID): array
+    {
+        error_log($tweetID);
+        $crawler = $this->goutteClient->request('GET', 'https://nitter.it/i/status/' . $tweetID);
+
+        $node = $crawler->filter('.main-tweet > .timeline-item > .tweet-body');
+
+        $twitterUsername = ltrim($node->filter('div > .tweet-header > .tweet-name-row > .fullname-and-username > a.username')->attr('title'), '@');
+        return [
+            'id' => $tweetID,
+            'created_at' => \DateTimeImmutable::createFromFormat('M d, Y · h:i A e', $node->filter('.tweet-date > a')->attr('title'))->format(\DateTimeImmutable::ATOM),
+            'in_reply_to_id' => null,
+            'in_reply_to_account_id' => null,
+            'sensitive' => false,
+            'spoiler_text' => '',
+            'visibility' => 'public',
+            'language' => null,
+            'url' => 'https://twitter.com/' . $twitterUsername . '/status/' . $tweetID,
+            'replies_count' => filter_var($node->filter('.tweet-stats > .tweet-stat > .icon-container > .icon-comment')->getNode(0)->parentNode->textContent, FILTER_SANITIZE_NUMBER_INT),
+            'reblogs_count' => filter_var($node->filter('.tweet-stats > .tweet-stat > .icon-container > .icon-retweet')->getNode(0)->parentNode->textContent, FILTER_SANITIZE_NUMBER_INT),
+            'favourites_count' => filter_var($node->filter('.tweet-stats > .tweet-stat > .icon-container > .icon-heart')->getNode(0)->parentNode->textContent, FILTER_SANITIZE_NUMBER_INT),
+            'edited_at' => null,
+            'favourited' => false,
+            'reblogged' => false,
+            'muted' => false,
+            'bookmarked' => false,
+            'content' => $node->filter('.tweet-content.media-body')->text(),
+            'filtered' => [],
+            'reblog' => null,
+            'application' => null,
+            'account' => $this->lookupAccount($twitterUsername),
+            'media_attachments' => $node->filter('.attachments')->count() > 0
+                ? array_merge(
+                    $node->filter('.attachments > .gallery-row > .attachment > a')->each(function(Crawler $node) use($tweetID) {
+                        return [
+                            'id' => $tweetID, // TODO add unique image ids
+                            'type' => 'image',
+                            'url' => 'https://nitter.net' . $node->attr('href'),
+                            'preview_url' => 'https://nitter.net' . $node->filter('img')->attr('src'),
+                            'preview_remote_url' => null,
+                            'text_url' => null,
+                            'meta' => [],
+                            'description' => null,
+                            'blurhash' => 'UHSF-Day-;j[-paybHkC~qofRjj[9Fj[t7WB', // TODO
+                        ];
+                    }),
+                    $node->filter('.attachments > .gallery-video > .video-container > video')->each(function (Crawler $node) use ($tweetID) {
+                        return [
+                            'id' => $tweetID, // TODO add unique image ids
+                            'type' => 'video',
+                            'url' => 'https://nitter.net' . $node->attr('data-url'),
+                            'preview_url' => 'https://nitter.net' . $node->attr('poster'),
+                            'remote_url' => 'https://nitter.net' . $node->attr('data-url'),
+                            'preview_remote_url' => null,
+                            'text_url' => null,
+                            'meta' => [],
+                            'description' => null,
+                            'blurHash' => 'UHH_lTDi?HWARN-=9FNG4m~WtSt5-;D$WYxu',
+                        ];
+                    })
+                )
+                : [],
+            'mentions' => [],
+            'tags' => [],
+            'emojis' => [],
+            'card' => null,
+            'poll' => null,
+        ];
+
+    }
+
+    public function getTweetContext(): array
+    {
+        return [
+            'ancestors' => [],
+            'descendants' => [],
+        ]; // TODO
     }
 
     private function nitterImageURLToTwitterURL(string $imageURL): string
