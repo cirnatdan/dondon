@@ -2771,7 +2771,6 @@ border-right-width:5px;
 .announcement_wrap {
 display:flex;
 flex-wrap:wrap;
-width:1200px;
 margin:auto;
 margin-top:2px;
 }
