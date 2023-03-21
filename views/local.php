@@ -1,22 +1,16 @@
-<?php include ('header.php'); ?>
-<main id="main" class="home">
+<?php include('header.php'); ?>
+<main id="main">
 <div class="article_wrap">
 <aside class="left_column">
 <?php include dirname(__FILE__).('/widgets/side_current_user.php'); ?>
 </aside>
 <article class="center_column">
 <header class="timeline_header">
-<ul class="header_items">
-<li class="item toots view">
-<a href="#">
-<?=_('Direct messages')?>
-</a>
-</li>
-</ul>
+<?php include dirname(__FILE__).('/widgets/create_status.php'); ?>
 </header>
 <div id="js-stream_update">
 <button>
-View <span></span> new Toots
+<?=_('View ')?><span></span><?=_(' new Toots')?>
 </button>
 </div>
 <ul id="js-timeline" class="timeline">
@@ -37,7 +31,15 @@ View <span></span> new Toots
 </main>
 <script>
 current_file = location.pathname;
-setDirectTimeline();
-$('title').text('Halcyon / Direct');
+if (
+localStorage.getItem("setting_local_instance") === "default" |
+localStorage.getItem("setting_local_instance") === current_instance
+) {
+setTimeline("timelines/public", [{name:"local",data:"true"}]);
+} else {
+setOtherTimeline(localStorage.getItem("setting_local_instance")+"/api/v1/", [{name:"local",data:"true"}]);
+}
+$("#local_nav").addClass('view');
+$('title').text('Halcyon / Local');
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

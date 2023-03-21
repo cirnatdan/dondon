@@ -31,4 +31,4 @@ View <span></span> new Toots
 $global_listid = "<?php echo $_GET['id'] ?>";
 </script>
 <script src="/assets/js/halcyon/halcyonLists.js"></script>
-<?php include ('footer.php'); ?>
+<?php include(__DIR__ . '/footer.php'); ?>

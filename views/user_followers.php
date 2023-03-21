@@ -1,6 +1,6 @@
-<?php include ('header.php'); ?>
+<?php include('header.php'); ?>
 <main id="main">
-<?php include dirname(__FILE__).('/widgets/user_header.php'); ?>
+<?php include user_followers . phpdirname(__FILE__) . ('/widgets/user_header.php'); ?>
 <div class="article_wrap">
 <aside class="left_column">
 <div class="profile_icon_box">
@@ -25,11 +25,11 @@
 <button class="toot_button profile_sendto" style="width:calc(50% - 3px)"><div class="toot_button_label"><i class="fa fa-fw fa-pencil-square-o"></i><span><?=_('Toot to')?></span></div></button>
 <button class="toot_button profile_sendto" style="width:calc(50% - 3px)" privacy="direct"><div class="toot_button_label"><i class="fa fa-fw fa-envelope"></i><span><?=_('Message')?></span></div></button>
 </div>
-<?php include dirname(__FILE__).('/widgets/user_recent_images.php'); ?>
+<?php include user_followers . phpdirname(__FILE__) . ('/widgets/user_recent_images.php'); ?>
 </section>
-<?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
-<?php include dirname(__FILE__).('/widgets/side_trending.php'); ?>
-<?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
+<?php include user_followers . phpdirname(__FILE__) . ('/widgets/side_who_to_follow.php'); ?>
+<?php include user_followers . phpdirname(__FILE__) . ('/widgets/side_trending.php'); ?>
+<?php include user_followers . phpdirname(__FILE__) . ('/widgets/side_footer.php'); ?>
 </aside>
 <article class="center_column">
 <div id="js-follows_profile">
@@ -42,7 +42,7 @@
 </main>
 <script>
 current_file = location.pathname;
-$("#js-profile_nav_following").toggleClass("view");
+$("#js-profile_nav_followers").toggleClass("view");
 $("#js-profile_nav_toots > a").attr('href', './'+location.search);
 $("#js-profile_nav_following > a").attr('href', 'following'+location.search);
 $("#js-profile_nav_followers > a").attr('href', 'followers'+location.search);
@@ -53,7 +53,7 @@ const account_id = "<?= htmlspecialchars((string)filter_input(INPUT_GET, 'mid'),
 api.get('accounts/'+account_id, function(AccountObj) {
 if ( AccountObj !== null ) {
 setAccount(AccountObj);
-setFollows(account_id,'following',[{name:'limit',data:18}]);
+setFollows(account_id,'followers',[{name:'limit',data:18}]);
 setRecentImages(AccountObj.id);
 } else {
 location.href="/404.php";
@@ -67,13 +67,13 @@ $name = preg_split("/@/", $_GET['user'])[1];
 $domain = preg_split("/@/", $_GET['user'])[2];
 $url= "https://$domain/@$name";
 ?>
-const query = '<?= htmlspecialchars((string)$_GET['user'], ENT_QUOTES) ?>';
+const query = '<?= htmlspecialchars((string)filter_input(INPUT_GET, 'user'), ENT_QUOTES) ?>';
 api.search('q='+encodeURIComponent(query)+"&resolve=true&limit=1",function(search) {
 if ( !search.accounts.length ) {
 location.href="/404.php";
 } else if ("@"+search.accounts[0].acct === query || "@"+search.accounts[0].acct+"@"+localStorage.current_instance === query) {
 setAccount(search.accounts[0]);
-setFollows(search.accounts[0].id,'following',[{name:'limit',data:18}]);
+setFollows(search.accounts[0].id,'followers',[{name:'limit',data:18}]);
 setRecentImages(search.accounts[0].id);
 } else {
 location.href="/404.php";
@@ -82,4 +82,4 @@ location.href="/404.php";
 })
 <?php endif; ?>
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

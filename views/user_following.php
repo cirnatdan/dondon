@@ -1,6 +1,6 @@
-<?php include ('header.php'); ?>
+<?php include('header.php'); ?>
 <main id="main">
-<?php include dirname(__FILE__).('/widgets/user_header.php'); ?>
+<?php include user_following . phpdirname(__FILE__) . ('/widgets/user_header.php'); ?>
 <div class="article_wrap">
 <aside class="left_column">
 <div class="profile_icon_box">
@@ -25,70 +25,38 @@
 <button class="toot_button profile_sendto" style="width:calc(50% - 3px)"><div class="toot_button_label"><i class="fa fa-fw fa-pencil-square-o"></i><span><?=_('Toot to')?></span></div></button>
 <button class="toot_button profile_sendto" style="width:calc(50% - 3px)" privacy="direct"><div class="toot_button_label"><i class="fa fa-fw fa-envelope"></i><span><?=_('Message')?></span></div></button>
 </div>
-<?php include dirname(__FILE__).('/widgets/user_recent_images.php'); ?>
+<?php include user_following . phpdirname(__FILE__) . ('/widgets/user_recent_images.php'); ?>
 </section>
+<?php include user_following . phpdirname(__FILE__) . ('/widgets/side_who_to_follow.php'); ?>
+<?php include user_following . phpdirname(__FILE__) . ('/widgets/side_trending.php'); ?>
+<?php include user_following . phpdirname(__FILE__) . ('/widgets/side_footer.php'); ?>
 </aside>
 <article class="center_column">
-<header class="timeline_header">
-<ul class="header_items">
-<li class="item toots">
-<a id="toots_link">
-<?=_('Toots')?>
-</a>
-</li>
-<li class="item wreplies view">
-<a id="with_replies_link">
-<?=_('Toots')?> &amp; <?=_('replies')?>
-</a>
-</li>
-<li class="item media">
-<a id="media_link">
-<?=_('Media')?>
-</a>
-</li>
-</ul>
-</header>
-<div id="js-stream_update">
-<button>
-<?=_('View ')?><span></span><?=_(' new Toots')?>
-</button>
+<div id="js-follows_profile">
 </div>
-<ul id="js-timeline" class="timeline">
-</ul>
-<footer id="js-timeline_footer" class="timeline_footer">
+<footer id="js-follows_footer">
 <i class="fa fa-spin fa-circle-o-notch" aria-hidden="true"></i>
 </footer>
 </article>
-<aside class="right_column">
-<section class="side_widgets_wrap">
-<?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
-<?php include dirname(__FILE__).('/widgets/side_trending.php'); ?>
-<?php include dirname(__FILE__).('/widgets/side_firefox_addon.php'); ?>
-</section>
-<?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
-</aside>
 </div>
 </main>
 <script>
 current_file = location.pathname;
-$("#toots_link").attr('href', './'+location.search);
-$("#with_replies_link").attr('href', './with_replies'+location.search);
-$("#media_link").attr('href', './media'+location.search);
-$("#js-profile_nav_toots > a").toggleClass("view");
-$("#js-profile_nav_toots > a").attr('href', location.pathname+location.search);
-$("#js-profile_nav_following > a").attr('href', './following'+location.search);
-$("#js-profile_nav_followers > a").attr('href', './followers'+location.search);
-$("#js-profile_nav_favourites > a").attr('href', './favourites'+location.search);
+$("#js-profile_nav_following").toggleClass("view");
+$("#js-profile_nav_toots > a").attr('href', './'+location.search);
+$("#js-profile_nav_following > a").attr('href', 'following'+location.search);
+$("#js-profile_nav_followers > a").attr('href', 'followers'+location.search);
+$("#js-profile_nav_favourites > a").attr('href','favourites'+location.search);
 <?php if (isset($_GET['mid'])): ?>
 $(function() {
 const account_id = "<?= htmlspecialchars((string)filter_input(INPUT_GET, 'mid'), ENT_QUOTES) ?>";
 api.get('accounts/'+account_id, function(AccountObj) {
 if ( AccountObj !== null ) {
 setAccount(AccountObj);
-setTimeline("accounts/"+AccountObj.id+"/statuses",undefined,"true");
+setFollows(account_id,'following',[{name:'limit',data:18}]);
 setRecentImages(AccountObj.id);
 } else {
-location.href = "/404.php";
+location.href="/404.php";
 }
 });
 });
@@ -99,20 +67,19 @@ $name = preg_split("/@/", $_GET['user'])[1];
 $domain = preg_split("/@/", $_GET['user'])[2];
 $url= "https://$domain/@$name";
 ?>
-const query = '<?= htmlspecialchars($_GET['user'], ENT_QUOTES) ?>';
+const query = '<?= htmlspecialchars((string)$_GET['user'], ENT_QUOTES) ?>';
 api.search('q='+encodeURIComponent(query)+"&resolve=true&limit=1",function(search) {
 if ( !search.accounts.length ) {
-location.href = "/404.php";
-}
-else if("@"+search.accounts[0].acct.toLowerCase() === query.toLowerCase() || "@"+search.accounts[0].acct+"@"+localStorage.current_instance === query) {
+location.href="/404.php";
+} else if ("@"+search.accounts[0].acct === query || "@"+search.accounts[0].acct+"@"+localStorage.current_instance === query) {
 setAccount(search.accounts[0]);
-setTimeline("accounts/"+search.accounts[0].id+"/statuses",undefined,"true");
+setFollows(search.accounts[0].id,'following',[{name:'limit',data:18}]);
 setRecentImages(search.accounts[0].id);
 } else {
-location.href = "/404.php";
+location.href="/404.php";
 }
 });
 })
 <?php endif; ?>
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

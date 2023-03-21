@@ -34,7 +34,7 @@ if ($filePath && is_file($filePath)) {
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/', function () {
         ob_start();
-        include ('home.php');
+        include('views/home.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -74,28 +74,28 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
 
     $r->addRoute('GET', '/local', function () {
         ob_start();
-        include ('local.php');
+        include('views/local.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
     $r->addRoute('GET', '/federated', function () {
         ob_start();
-        include ('federated.php');
+        include ('views/federated.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
     $r->addRoute('GET', '/notifications', function () {
         ob_start();
-        include ('notifications.php');
+        include ('views/notifications.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
     $r->addRoute('GET', '/lists', function () {
         ob_start();
-        include ('lists.php');
+        include ('views/lists.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -126,21 +126,30 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
 
     $r->addRoute('GET', '/direct', function () {
         ob_start();
-        include ('direct.php');
+        include ('views/direct.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
-    $r->addRoute('GET', '/lists/{id}', function () {
+    $r->addRoute('GET', '/lists/{id}', function (string $id) {
+        $_GET['id'] = $id;
         ob_start();
-        include('lists_view.php');
+        include('views/lists_view.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/lists/{id}/add', function (string $id) {
+        $_GET['id'] = $id;
+        ob_start();
+        include('views/lists_add.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
     $r->addRoute('GET', '/instance', function () {
         ob_start();
-        include ('instance.php');
+        include ('views/instance.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -152,10 +161,94 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
+    $r->addRoute('GET', '/settings/profile', function () {
+        ob_start();
+        include ('views/settings_profile.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/settings/appearance', function () {
+        ob_start();
+        include ('views/settings_appearance.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/settings/filters', function () {
+        ob_start();
+        include ('views/settings_filters.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/settings/media', function () {
+        ob_start();
+        include ('views/settings_media.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/settings/blocks', function () {
+        ob_start();
+        include ('views/settings_accounts.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/settings/mutes', function () {
+        ob_start();
+        include ('views/settings_accounts.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/settings/followers', function () {
+        ob_start();
+        include ('views/settings_accounts.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/settings', function () {
+        ob_start();
+        include ('views/settings_general.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/bookmarks', function () {
+        ob_start();
+        include ('views/bookmarks.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/search', function () {
+        ob_start();
+        include ('views/search_hash_tag.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/search/users', function () {
+        ob_start();
+        include ('views/search_user.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/whotofollow', function () {
+        ob_start();
+        include ('views/who_to_follow.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
     $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/with_replies', function (string $handle) {
         $_GET['user'] = $handle;
         ob_start();
-        include ('user_include_replies.php');
+        include('views/user_include_replies.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -165,7 +258,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
         $_GET['user'] = $handle;
         $_GET['status'] = $statusId;
         ob_start();
-        include ('user_include_replies.php');
+        include('views/user_include_replies.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -173,7 +266,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+/?}', function (string $handle) {
         $_GET['user'] = $handle;
         ob_start();
-        include ('user.php');
+        include('views/user.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -181,7 +274,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/following', function (string $handle) {
         $_GET['user'] = $handle;
         ob_start();
-        include ('user_following.php');
+        include('user_following.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -189,7 +282,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/followers', function (string $handle) {
         $_GET['user'] = $handle;
         ob_start();
-        include ('user_followers.php');
+        include('user_followers.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -197,7 +290,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/favourites', function (string $handle) {
         $_GET['user'] = $handle;
         ob_start();
-        include ('user_favorite.php');
+        include('user_favorite.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });

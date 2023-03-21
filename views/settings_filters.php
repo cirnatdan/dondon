@@ -63,4 +63,4 @@
 </div>
 </main>
 <script src="/assets/js/halcyon/halcyonSettings.js"></script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

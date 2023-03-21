@@ -1,5 +1,5 @@
 <?php include ('header.php'); ?>
-<main id="main">
+<main id="main" class="home">
 <div class="article_wrap">
 <aside class="left_column">
 <?php include dirname(__FILE__).('/widgets/side_current_user.php'); ?>
@@ -16,7 +16,7 @@
 </header>
 <div id="js-stream_update">
 <button>
-<?=_('View ')?><span></span><?=_(' new notitification')?>
+View <span></span> new Toots
 </button>
 </div>
 <ul id="js-timeline" class="timeline">
@@ -37,9 +37,7 @@
 </main>
 <script>
 current_file = location.pathname;
-$("#notifications_nav").addClass('view');
-localStorage.setItem("notification_count", 0);
-setNotifications();
-$('title').text('Halcyon / Notifications')
+setTimeline("bookmarks");
+$('title').text('Halcyon / Bookmarks');
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

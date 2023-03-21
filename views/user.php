@@ -1,4 +1,4 @@
-<?php include ('header.php'); ?>
+<?php include('header.php'); ?>
 <main id="main">
 <?php include dirname(__FILE__).('/widgets/user_header.php'); ?>
 <div class="article_wrap">
@@ -118,4 +118,4 @@ location.href = "/404.php";
 });
 })
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

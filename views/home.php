@@ -1,4 +1,4 @@
-<?php include ('header.php'); ?>
+<?php include('header.php'); ?>
 <main id="main" class="home">
 <div class="article_wrap">
 <aside class="left_column">
@@ -6,13 +6,7 @@
 </aside>
 <article class="center_column">
 <header class="timeline_header">
-<ul class="header_items">
-<li class="item toots view">
-<a href="#">
-<?=_('All')?>
-</a>
-</li>
-</ul>
+<?php include dirname(__FILE__).('/widgets/create_status.php'); ?>
 </header>
 <div id="js-stream_update">
 <button>
@@ -37,7 +31,8 @@ View <span></span> new Toots
 </main>
 <script>
 current_file = location.pathname;
-setTimeline("bookmarks");
-$('title').text('Halcyon / Bookmarks');
+setTimeline("timelines/home");
+$("#home_nav").addClass('view');
+$('title').text('Halcyon');
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

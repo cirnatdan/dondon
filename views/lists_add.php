@@ -1,6 +1,6 @@
 <?php include ('header.php'); ?>
-<main id="main">
-<?php include dirname(__FILE__).('/widgets/settings_header.php'); ?>
+<main id="main" class="home">
+<?php include dirname(__FILE__).('/widgets/lists_header.php'); ?>
 <div class="article_wrap">
 <aside class="left_column">
 <?php include dirname(__FILE__).('/widgets/side_current_user.php'); ?>
@@ -15,5 +15,8 @@
 </article>
 </div>
 </main>
-<script src="/assets/js/halcyon/halcyonSettings.js"></script>
-<?php include ('footer.php'); ?>
+<script>
+$global_listid = "<?php echo $_GET['id'] ?>";
+</script>
+<script src="/assets/js/halcyon/halcyonLists.js"></script>
+<?php include(__DIR__ . '/footer.php'); ?>

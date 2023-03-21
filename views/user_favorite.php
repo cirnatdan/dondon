@@ -1,6 +1,6 @@
-<?php include ('header.php'); ?>
+<?php include('header.php'); ?>
 <main id="main">
-<?php include dirname(__FILE__).('/widgets/user_header.php'); ?>
+<?php include user_favorite . phpdirname(__FILE__) . ('/widgets/user_header.php'); ?>
 <div class="article_wrap">
 <aside class="left_column">
 <div class="profile_icon_box">
@@ -21,7 +21,7 @@
 <div id="js_profile_joined_date" class="profile_with_icon" style="margin-bottom:5px">
 <span><i class="fa fa-fw fa-calendar" aria-hidden="true"></i><span></span></span>
 </div>
-<?php include dirname(__FILE__).('/widgets/user_recent_images.php'); ?>
+<?php include user_favorite . phpdirname(__FILE__) . ('/widgets/user_recent_images.php'); ?>
 </section>
 </aside>
 <article class="center_column">
@@ -47,11 +47,11 @@
 </article>
 <aside class="right_column">
 <section class="side_widgets_wrap">
-<?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
-<?php include dirname(__FILE__).('/widgets/side_trending.php'); ?>
-<?php include dirname(__FILE__).('/widgets/side_firefox_addon.php'); ?>
+<?php include user_favorite . phpdirname(__FILE__) . ('/widgets/side_who_to_follow.php'); ?>
+<?php include user_favorite . phpdirname(__FILE__) . ('/widgets/side_trending.php'); ?>
+<?php include user_favorite . phpdirname(__FILE__) . ('/widgets/side_firefox_addon.php'); ?>
 </section>
-<?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
+<?php include user_favorite . phpdirname(__FILE__) . ('/widgets/side_footer.php'); ?>
 </aside>
 </div>
 </main>
@@ -97,4 +97,4 @@ location.href="/404.php";
 })
 <?php endif; ?>
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

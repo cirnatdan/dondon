@@ -70,4 +70,4 @@ history.back();
 window.location.href = "/";
 <?php } ?>
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

@@ -1,4 +1,4 @@
-<?php include ('header.php'); ?>
+<?php include('header.php'); ?>
 <main id="main">
 <?php include dirname(__FILE__).('/widgets/user_header.php'); ?>
 <div class="article_wrap">
@@ -27,36 +27,68 @@
 </div>
 <?php include dirname(__FILE__).('/widgets/user_recent_images.php'); ?>
 </section>
-<?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
-<?php include dirname(__FILE__).('/widgets/side_trending.php'); ?>
-<?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
 </aside>
 <article class="center_column">
-<div id="js-follows_profile">
+<header class="timeline_header">
+<ul class="header_items">
+<li class="item toots">
+<a id="toots_link">
+<?=_('Toots')?>
+</a>
+</li>
+<li class="item wreplies view">
+<a id="with_replies_link">
+<?=_('Toots')?> &amp; <?=_('replies')?>
+</a>
+</li>
+<li class="item media">
+<a id="media_link">
+<?=_('Media')?>
+</a>
+</li>
+</ul>
+</header>
+<div id="js-stream_update">
+<button>
+<?=_('View ')?><span></span><?=_(' new Toots')?>
+</button>
 </div>
-<footer id="js-follows_footer">
+<ul id="js-timeline" class="timeline">
+</ul>
+<footer id="js-timeline_footer" class="timeline_footer">
 <i class="fa fa-spin fa-circle-o-notch" aria-hidden="true"></i>
 </footer>
 </article>
+<aside class="right_column">
+<section class="side_widgets_wrap">
+<?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
+<?php include dirname(__FILE__).('/widgets/side_trending.php'); ?>
+<?php include dirname(__FILE__).('/widgets/side_firefox_addon.php'); ?>
+</section>
+<?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
+</aside>
 </div>
 </main>
 <script>
 current_file = location.pathname;
-$("#js-profile_nav_followers").toggleClass("view");
-$("#js-profile_nav_toots > a").attr('href', './'+location.search);
-$("#js-profile_nav_following > a").attr('href', 'following'+location.search);
-$("#js-profile_nav_followers > a").attr('href', 'followers'+location.search);
-$("#js-profile_nav_favourites > a").attr('href','favourites'+location.search);
+$("#toots_link").attr('href', './'+location.search);
+$("#with_replies_link").attr('href', './with_replies'+location.search);
+$("#media_link").attr('href', './media'+location.search);
+$("#js-profile_nav_toots > a").toggleClass("view");
+$("#js-profile_nav_toots > a").attr('href', location.pathname+location.search);
+$("#js-profile_nav_following > a").attr('href', './following'+location.search);
+$("#js-profile_nav_followers > a").attr('href', './followers'+location.search);
+$("#js-profile_nav_favourites > a").attr('href', './favourites'+location.search);
 <?php if (isset($_GET['mid'])): ?>
 $(function() {
 const account_id = "<?= htmlspecialchars((string)filter_input(INPUT_GET, 'mid'), ENT_QUOTES) ?>";
 api.get('accounts/'+account_id, function(AccountObj) {
 if ( AccountObj !== null ) {
 setAccount(AccountObj);
-setFollows(account_id,'followers',[{name:'limit',data:18}]);
+setTimeline("accounts/"+AccountObj.id+"/statuses",undefined,"true");
 setRecentImages(AccountObj.id);
 } else {
-location.href="/404.php";
+location.href = "/404.php";
 }
 });
 });
@@ -67,19 +99,20 @@ $name = preg_split("/@/", $_GET['user'])[1];
 $domain = preg_split("/@/", $_GET['user'])[2];
 $url= "https://$domain/@$name";
 ?>
-const query = '<?= htmlspecialchars((string)filter_input(INPUT_GET, 'user'), ENT_QUOTES) ?>';
+const query = '<?= htmlspecialchars($_GET['user'], ENT_QUOTES) ?>';
 api.search('q='+encodeURIComponent(query)+"&resolve=true&limit=1",function(search) {
 if ( !search.accounts.length ) {
-location.href="/404.php";
-} else if ("@"+search.accounts[0].acct === query || "@"+search.accounts[0].acct+"@"+localStorage.current_instance === query) {
+location.href = "/404.php";
+}
+else if("@"+search.accounts[0].acct.toLowerCase() === query.toLowerCase() || "@"+search.accounts[0].acct+"@"+localStorage.current_instance === query) {
 setAccount(search.accounts[0]);
-setFollows(search.accounts[0].id,'followers',[{name:'limit',data:18}]);
+setTimeline("accounts/"+search.accounts[0].id+"/statuses",undefined,"true");
 setRecentImages(search.accounts[0].id);
 } else {
-location.href="/404.php";
+location.href = "/404.php";
 }
 });
 })
 <?php endif; ?>
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

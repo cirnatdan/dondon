@@ -1,16 +1,22 @@
-<?php include ('header.php'); ?>
-<main id="main" class="federated">
+<?php include('header.php'); ?>
+<main id="main">
 <div class="article_wrap">
 <aside class="left_column">
 <?php include dirname(__FILE__).('/widgets/side_current_user.php'); ?>
 </aside>
 <article class="center_column">
 <header class="timeline_header">
-<?php include dirname(__FILE__).('/widgets/create_status.php'); ?>
+<ul class="header_items">
+<li class="item toots view">
+<a href="#">
+<?=_('All')?>
+</a>
+</li>
+</ul>
 </header>
 <div id="js-stream_update">
 <button>
-<?=_('View ')?><span></span><?=_(' new Toots')?>
+<?=_('View ')?><span></span><?=_(' new notitification')?>
 </button>
 </div>
 <ul id="js-timeline" class="timeline">
@@ -31,8 +37,9 @@
 </main>
 <script>
 current_file = location.pathname;
-setTimeline("timelines/public");
-$("#federated_nav").addClass('view');
-$('title').text('Halcyon / Federated');
+$("#notifications_nav").addClass('view');
+localStorage.setItem("notification_count", 0);
+setNotifications();
+$('title').text('Halcyon / Notifications')
 </script>
-<?php include ('footer.php'); ?>
+<?php include(__DIR__. '/footer.php'); ?>

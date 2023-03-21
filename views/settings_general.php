@@ -167,4 +167,4 @@ echo "<option value='".$languages[$i]."'".$selected.">"._('Language_'.$languages
 </div>
 </main>
 <script src="/assets/js/halcyon/halcyonSettings.js"></script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

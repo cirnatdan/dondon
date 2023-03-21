@@ -49,4 +49,4 @@ nextprofiles(pcount*30);
 }
 });
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

@@ -62,4 +62,4 @@
 setInstance();
 $('title').text('Halcyon / Instance');
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>

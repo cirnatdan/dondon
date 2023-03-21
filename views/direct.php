@@ -6,7 +6,13 @@
 </aside>
 <article class="center_column">
 <header class="timeline_header">
-<?php include dirname(__FILE__).('/widgets/create_status.php'); ?>
+<ul class="header_items">
+<li class="item toots view">
+<a href="#">
+<?=_('Direct messages')?>
+</a>
+</li>
+</ul>
 </header>
 <div id="js-stream_update">
 <button>
@@ -31,8 +37,7 @@ View <span></span> new Toots
 </main>
 <script>
 current_file = location.pathname;
-setTimeline("timelines/home");
-$("#home_nav").addClass('view');
-$('title').text('Halcyon');
+setDirectTimeline();
+$('title').text('Halcyon / Direct');
 </script>
-<?php include ('footer.php'); ?>
+<?php include('footer.php'); ?>
