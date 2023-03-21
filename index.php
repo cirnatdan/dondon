@@ -208,7 +208,13 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
         $mastodonRequestUri = str_replace('/mastodon/', '', $url['path']);
         error_log($mastodonRequestUri);
 
-        $nitterScraper = new \App\NitterScraper(new Client());
+        $nitterScraper = new \App\NitterScraper(new Client(new \Symfony\Component\HttpClient\CachingHttpClient(
+            \Symfony\Component\HttpClient\HttpClient::create(),
+            new \Symfony\Component\HttpKernel\HttpCache\Store(__DIR__ . '/data/nitter-cache'),
+            [
+                'default_ttl' => 300,
+            ]
+        )));
         if ($mastodonRequestUri === '/api/v2/search' && preg_match('/@(.+)@twitter.com/', $_GET['q'])) {
             $twitterAccounts = $nitterScraper->searchAccounts($_GET['q'], $_GET['resolve'] ?? false);
 

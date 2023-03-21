@@ -18,7 +18,9 @@ class NitterScraper
 
         error_log($twitterUsername);
 
-        return [$this->lookupAccount($twitterUsername)];
+        if ($resolve) {
+            return [$this->lookupAccount($twitterUsername)];
+        }
 
         return array_filter($crawler->filter('.timeline-item')->each(function ($node) use ($twitterUsername, $resolve) {
             error_log(ltrim($node->filter('.username')->text(), '@'));
