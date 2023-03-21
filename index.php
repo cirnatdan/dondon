@@ -178,6 +178,30 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
+    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/following', function (string $handle) {
+        $_GET['user'] = $handle;
+        ob_start();
+        include ('user_following.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/followers', function (string $handle) {
+        $_GET['user'] = $handle;
+        ob_start();
+        include ('user_followers.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
+    $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/favourites', function (string $handle) {
+        $_GET['user'] = $handle;
+        ob_start();
+        include ('user_favorite.php');
+        $content = ob_get_clean();
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
+    });
+
     $r->addRoute('GET', '/api/{param:.+}', function (string $param) {
         $url = parse_url($_SERVER['REQUEST_URI']);
         $query = $url['query'] ?? '';

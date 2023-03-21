@@ -67,7 +67,7 @@ $name = preg_split("/@/", $_GET['user'])[1];
 $domain = preg_split("/@/", $_GET['user'])[2];
 $url= "https://$domain/@$name";
 ?>
-const query = '<?= htmlspecialchars((string)filter_input(INPUT_GET, 'user'), ENT_QUOTES) ?>';
+const query = '<?= htmlspecialchars((string)$_GET['user'], ENT_QUOTES) ?>';
 api.search('q='+encodeURIComponent(query)+"&resolve=true&limit=1",function(search) {
 if ( !search.accounts.length ) {
 location.href="/404.php";
