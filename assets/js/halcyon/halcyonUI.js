@@ -371,17 +371,37 @@ let isSyncing = true;
 if(load_options === undefined) {
 var load_options = [];
 }
-api.get(level, load_options, function(statuses) {
-timeline_hide_status = new Array;
-renderTimeline(statuses,show_replies,level);
-links = getLinkFromXHRHeader(responce_headers);
-replaceInternalLink();
-replace_emoji();
-if (!statuses.length) {
-$('#js-timeline_footer > i').css({"display":"none"});
+if (level === "timelines/home") {
+    api.get(level, load_options, function (statuses) {
+        localAPI.get(level, load_options, function (newStatuses) {
+            statuses = statuses.concat(newStatuses);
+            statuses.sort(function (a, b) {
+                return Date.parse(b.created_at) - Date.parse(a.created_at);
+            });
+            timeline_hide_status = new Array;
+            renderTimeline(statuses, show_replies, level);
+            links = getLinkFromXHRHeader(responce_headers);
+            replaceInternalLink();
+            replace_emoji();
+            if (!statuses.length) {
+                $('#js-timeline_footer > i').css({"display": "none"});
+            }
+            isSyncing = false;
+        }, null, true);
+    }, null, true);
+} else {
+    api.get(level, load_options, function (statuses) {
+        timeline_hide_status = new Array;
+        renderTimeline(statuses, show_replies, level);
+        links = getLinkFromXHRHeader(responce_headers);
+        replaceInternalLink();
+        replace_emoji();
+        if (!statuses.length) {
+            $('#js-timeline_footer > i').css({"display": "none"});
+        }
+        isSyncing = false;
+    });
 }
-isSyncing = false;
-});
 $(window).scroll(function () {
 if ( $(window).scrollTop()+window.innerHeight >= $(document).height()-700 ) {
 if (!isSyncing) {

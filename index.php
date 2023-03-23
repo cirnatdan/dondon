@@ -31,7 +31,33 @@ if ($filePath && is_file($filePath)) {
     }
 }
 
-$dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
+$container = new \League\Container\Container();
+$container->defaultToShared(true);
+$container->add(\PDO::class)
+    ->addArgument('sqlite:' . __DIR__ . '/data/db/dondon.sqlite');
+$container->add(\HalcyonSuite\HalcyonForMastodon\Mastodon::class);
+$container->add(\App\AccessTokenRepository::class)
+    ->addArgument(\PDO::class);
+$container->add(\App\UserRepository::class)
+    ->addArgument(\PDO::class);
+$container->add(\App\FollowRepository::class)
+    ->addArgument(\PDO::class);
+
+$container->add(\App\NitterScraper::class)
+    ->addArgument(\Goutte\Client::class);
+$container->add(\Goutte\Client::class)
+    ->addArgument(\Symfony\Component\HttpClient\CachingHttpClient::class);
+$container->add(\Symfony\Component\HttpClient\CachingHttpClient::class)
+    ->addArgument(\Symfony\Contracts\HttpClient\HttpClientInterface::class)
+    ->addArgument(\Symfony\Component\HttpKernel\HttpCache\StoreInterface::class)
+    ->addArgument(['default_ttl' => 300]);
+$container->add(\Symfony\Contracts\HttpClient\HttpClientInterface::class, function () {
+   return \Symfony\Component\HttpClient\HttpClient::create();
+});
+$container->add(\Symfony\Component\HttpKernel\HttpCache\StoreInterface::class, \Symfony\Component\HttpKernel\HttpCache\Store::class)
+    ->addArgument(__DIR__ . '/data/nitter-cache');
+
+$dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) use ($container) {
     $r->addRoute('GET', '/', function () {
         ob_start();
         include('views/home.php');
@@ -56,7 +82,23 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
-    $r->addRoute('GET', '/auth', function () {
+    $r->addRoute('GET', '/auth', function () use ($container) {
+        $api = $container->get(\HalcyonSuite\HalcyonForMastodon\Mastodon::class);
+        $domain = htmlspecialchars((string)filter_input(INPUT_GET, 'host'), ENT_QUOTES);
+        if(in_array($domain,json_decode(base64_decode("WyJnYWIuY29tIiwiZ2FiLmFpIl0=")))) die();
+        $URL= 'https://'.$domain;
+        $api->selectInstance($URL);
+        $response = $api->get_access_token($api->clientWebsite.'/auth?&host='.$domain, htmlspecialchars((string)filter_input(INPUT_GET, 'code'), ENT_QUOTES));
+        if(isset($response) && is_array($response) && isset($response['html']) && is_array($response['html']) && isset($response['html']["access_token"])) {
+            $access_token = $response['html']["access_token"];
+            $profile = $api->accounts_verify_credentials()['html'];
+            $account_id = $profile['id'];
+            /** @var \App\AccessTokenRepository $accessTokenRepository */
+            $accessTokenRepository = $container->get(\App\AccessTokenRepository::class);
+            $accessTokenRepository->saveAccessToken($account_id, $domain, $access_token, new \DateTime());
+        } else {
+            return new \Amp\Http\Server\Response(302, ['location' => '/login?error=no_token']);
+        }
         ob_start();
         chdir(__DIR__ . '/views/login');
         include ('auth.php');
@@ -274,7 +316,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/following', function (string $handle) {
         $_GET['user'] = $handle;
         ob_start();
-        include('user_following.php');
+        include('views/user_following.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -282,7 +324,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/followers', function (string $handle) {
         $_GET['user'] = $handle;
         ob_start();
-        include('user_followers.php');
+        include('views/user_followers.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
@@ -290,28 +332,177 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/{handle:@.+@.+\.[a-z]+}/favourites', function (string $handle) {
         $_GET['user'] = $handle;
         ob_start();
-        include('user_favorite.php');
+        include('views/user_favorite.php');
         $content = ob_get_clean();
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
-    $r->addRoute('GET', '/api/{param:.+}', function (string $param) {
+    $r->addRoute('POST', '/api/v1/accounts/{id:\d+}/follow', function (int $id) {
+        return new \Amp\Http\Server\Response(421, ['content-type' => 'text/html'], 'Probable Mastodon account. Please use the Mastodon instance API');
+    });
+
+    $r->addRoute('POST', '/api/v1/accounts/{id:\d+}/unfollow', function (int $id) {
+        return new \Amp\Http\Server\Response(421, ['content-type' => 'text/html'], 'Probable Mastodon account. Please use the Mastodon instance API');
+    });
+
+    $r->addRoute('POST', '/api/v1/accounts/{handle:@.+@.+\.[a-z]+}/follow', function (string $handle ) use ($container){
+        $token = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (count($token) !== 2 || $token[0] !== 'Bearer') {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+
+        /** @var \App\AccessTokenRepository $accessTokenRepository */
+        $accessTokenRepository = $container->get(\App\AccessTokenRepository::class);
+        $accessToken = $accessTokenRepository->findAccessToken($token[1]);
+        if (!$accessToken) {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+        /** @var \App\UserRepository $userRepository */
+        $userRepository = $container->get(\App\UserRepository::class);
+        $username = explode('@', $handle)[1];
+        $user = $userRepository->findByUsernameAndInstance($username, 'twitter.com');
+        if (!$user) {
+            return new \Amp\Http\Server\Response(404, ['content-type' => 'text/html'], 'User Not Found');
+        }
+        /** @var \App\FollowRepository $followRepository */
+        $followRepository = $container->get(\App\FollowRepository::class);
+        $followRepository->saveRelationship($accessToken->getInstance(), $accessToken->getIdOnInstance(), 'twitter.com', $user->getIdOnInstance());
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], 'Follow successful');
+    });
+
+    $r->addRoute('POST', '/api/v1/accounts/{handle:@.+@.+\.[a-z]+}/unfollow', function (string $handle ) use ($container){
+        $token = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (count($token) !== 2 || $token[0] !== 'Bearer') {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+
+        /** @var \App\AccessTokenRepository $accessTokenRepository */
+        $accessTokenRepository = $container->get(\App\AccessTokenRepository::class);
+        $accessToken = $accessTokenRepository->findAccessToken($token[1]);
+        if (!$accessToken) {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+        /** @var \App\UserRepository $userRepository */
+        $userRepository = $container->get(\App\UserRepository::class);
+        $username = explode('@', $handle)[1];
+        $user = $userRepository->findByUsernameAndInstance($username, 'twitter.com');
+        if (!$user) {
+            return new \Amp\Http\Server\Response(404, ['content-type' => 'text/html'], 'User Not Found');
+        }
+        /** @var \App\FollowRepository $followRepository */
+        $followRepository = $container->get(\App\FollowRepository::class);
+        $followRepository->deleteRelationship($accessToken->getInstance(), $accessToken->getIdOnInstance(), 'twitter.com', $user->getIdOnInstance());
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], 'Follow successful');
+    });
+
+    $r->addRoute('GET', '/api/v1/accounts/relationships', function () use ($container) {
+        if (!preg_match('/@(.+)@twitter.com/', $_GET['id'], $matches)) {
+            return new \Amp\Http\Server\Response(421, ['content-type' => 'text/html'], 'Not Implemented');
+        }
+
+        $token = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (count($token) !== 2 || $token[0] !== 'Bearer') {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+
+        /** @var \App\AccessTokenRepository $accessTokenRepository */
+        $accessTokenRepository = $container->get(\App\AccessTokenRepository::class);
+        $accessToken = $accessTokenRepository->findAccessToken($token[1]);
+        if (!$accessToken) {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+
+        /** @var \App\UserRepository $userRepository */
+        $userRepository = $container->get(\App\UserRepository::class);
+        $targetUser = $userRepository->findByUsernameAndInstance($matches[1], 'twitter.com');
+        if (!$targetUser) {
+            return new \Amp\Http\Server\Response(404, ['content-type' => 'text/html'], 'User Not Found');
+        }
+
+        /** @var \App\FollowRepository $followRepository */
+        $followRepository = $container->get(\App\FollowRepository::class);
+        $relationships = [];
+
+        $relationship = $followRepository->getRelationship($accessToken->getInstance(), $accessToken->getIdOnInstance(), 'twitter.com', $targetUser->getIdOnInstance());
+        if (null !== $relationship)
+            $relationships[] = [
+                'id' => $_GET['id'],
+                'following' => true,
+                'showing_reblogs' => true,
+                'notifying' => false,
+                'languages' => null,
+                'followed_by' => false,
+                'blocking' => false,
+                'blocked_by' => false,
+                'muting' => false,
+                'muting_notifications' => false,
+                'requested' => false,
+                'requested_by' => false,
+                'domain_blocking' => false,
+                'endorsed' => false,
+                'note' => '',
+            ];
+
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'], json_encode($relationships));
+    });
+
+    $r->addRoute('GET', '/api/v1/timelines/home', function () use ($container) {
+        $token = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (count($token) !== 2 || $token[0] !== 'Bearer') {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+
+        /** @var \App\AccessTokenRepository $accessTokenRepository */
+        $accessTokenRepository = $container->get(\App\AccessTokenRepository::class);
+        $accessToken = $accessTokenRepository->findAccessToken($token[1]);
+        if (!$accessToken) {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+
+        /** @var \App\FollowRepository $followRepository */
+        $followRepository = $container->get(\App\FollowRepository::class);
+        /** @var \Domain\FollowRelationship[] $followRelationships */
+        $followRelationships = $followRepository->getFollowRelationShipsForIdOnInstance($accessToken->getInstance(), $accessToken->getIdOnInstance());
+
+        /** @var \App\UserRepository $userRepository */
+        $userRepository = $container->get(\App\UserRepository::class);
+        /** @var \App\NitterScraper $nitterScraper */
+        $nitterScraper = $container->get(\App\NitterScraper::class);
+        $statuses = [];
+        foreach ($followRelationships as $relationship) {
+            if ($relationship->getTargetInstance() === 'twitter.com') {
+                $user = $userRepository->findByIdOnInstance($relationship->getTargetIdOnInstance(), 'twitter.com');
+                foreach($nitterScraper->getAccountTweets('@' . $user->getUsername() . '@twitter.com') as $tweet) {
+                    $statuses[] = $tweet;
+                }
+            }
+        }
+
+        usort($statuses, function ($a, $b) {
+            return $b['created_at'] <=> $a['created_at'];
+        });
+
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'], json_encode($statuses));
+    });
+
+    $r->addRoute('GET', '/api/{param:.+}', function (string $param) use ($container) {
         $url = parse_url($_SERVER['REQUEST_URI']);
         $query = $url['query'] ?? '';
         $mastodonRequestUri = str_replace('/mastodon/', '', $url['path']);
         error_log($mastodonRequestUri);
 
-        $nitterScraper = new \App\NitterScraper(new Client(new \Symfony\Component\HttpClient\CachingHttpClient(
-            \Symfony\Component\HttpClient\HttpClient::create(),
-            new \Symfony\Component\HttpKernel\HttpCache\Store(__DIR__ . '/data/nitter-cache'),
-            [
-                'default_ttl' => 300,
-            ]
-        )));
+        /** @var \App\NitterScraper $nitterScraper */
+        $nitterScraper = $container->get(\App\NitterScraper::class);
         if ($mastodonRequestUri === '/api/v2/search' && preg_match('/@(.+)@twitter.com/', $_GET['q'])) {
             $twitterAccounts = $nitterScraper->searchAccounts($_GET['q'], $_GET['resolve'] ?? false);
 
             if (count($twitterAccounts) > 0) {
+                /** @var \App\UserRepository $userRepository */
+                $userRepository = $container->get(\App\UserRepository::class);
+                $user = $userRepository->findByIdOnInstance(intval($twitterAccounts[0]['twitter_id']), 'twitter.com');
+                if (null === $user) {
+                    $userRepository->save($twitterAccounts[0]['username'], 'twitter.com', intval($twitterAccounts[0]['twitter_id']));
+                }
                 $response = [];
                 $response['accounts'] = array_merge($response['accounts'] ?? [], $twitterAccounts);
                 $response['statuses'] = [];

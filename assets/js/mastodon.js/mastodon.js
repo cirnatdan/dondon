@@ -16,13 +16,13 @@ return config[key];
 get: function (endpoint) {
 var queryData,callback,failback,queryStringAppend = "?";
 if (typeof arguments[1] === "function") {
-queryData = {};
-callback = arguments[1];
-if(arguments[2]) failback = arguments[2];
+    queryData = {};
+    callback = arguments[1];
+    if(arguments[2]) failback = arguments[2];
 } else {
-queryData = arguments[1];
-callback = arguments[2];
-if(arguments[3]) failback = arguments[3];
+    queryData = arguments[1];
+    callback = arguments[2];
+    if(arguments[3]) failback = arguments[3];
 }
 if(typeof queryData == "string") {
 queryStringAppend = queryData;
@@ -177,8 +177,14 @@ if(arguments.length == 4) {
 var errorback = arguments[3];
 }
 }
+let url = "";
+if (true === arguments[4]) {
+    url = apiBase + endpoint;
+} else {
+    url = proxyBase + endpoint;
+}
 $.ajax({
-url: apiBase + endpoint,
+url: url,
 type: "POST",
 data: postData,
 headers: requestHeaders,
@@ -196,8 +202,8 @@ console.log("Successful POST API request to " +apiBase+endpoint);
 callback(data,textStatus)
 },
 error: function(xhr, textStatus, errorThrown) {
-if(xhr.readyState == 0) {
-api.post(endpoint,postData,callback,idempotencykey);
+if(xhr.readyState == 0 || xhr.status == 421) {
+api.post(endpoint,postData,callback,idempotencykey,true);
 }
 else {
 if(xhr.status === 401) {

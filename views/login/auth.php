@@ -18,15 +18,7 @@ location.href = '/logout';
 use HalcyonSuite\HalcyonForMastodon\Mastodon;
 $api = new Mastodon();
 if ($_GET['code']) {
-$domain = htmlspecialchars((string)filter_input(INPUT_GET, 'host'), ENT_QUOTES);
-if(in_array($domain,json_decode(base64_decode("WyJnYWIuY29tIiwiZ2FiLmFpIl0=")))) die();
-$URL= 'https://'.$domain;
-$api->selectInstance($URL);
-$response = $api->get_access_token($api->clientWebsite.'/auth?&host='.$domain, htmlspecialchars((string)filter_input(INPUT_GET, 'code'), ENT_QUOTES));
-if(isset($response) && is_array($response) && isset($response['html']) && is_array($response['html']) && isset($response['html']["access_token"])) {
-$access_token = $response['html']["access_token"];
-$profile = $api->accounts_verify_credentials()['html'];
-$account_id = $profile['id'];
+
 echo "
 <script>
 localStorage.setItem('current_id','$account_id');
@@ -73,7 +65,6 @@ else location.href = '/';
 ";
 }
 else echo "<h1>An error occured</h1><p>There was an error and Halcyon couldn't fetch or validate a access token for this instance</p>";
-}
 ?>
 </head>
 <body>

@@ -44,7 +44,7 @@ class NitterScraper
         }));
     }
 
-    public function lookupAccount(string $twitterUsername)
+    public function lookupAccount(string $twitterUsername): array
     {
         $crawler = $this->goutteClient->request('GET', 'https://nitter.net/' . rawurlencode($twitterUsername));
 
@@ -53,6 +53,7 @@ class NitterScraper
         if (ltrim(strtolower($node->filter('.profile-card-username')->text()), '@') === strtolower($twitterUsername)) {
             return [
                 'id' => '@' . $twitterUsername . '@twitter.com',
+                'twitter_id' => $this->extractTwitterIDFromBannerURL($node->filter('.profile-banner > a')->attr('href')),
                 'acct' => ltrim($node->filter('.profile-card-username')->text(), '@') . '@twitter.com',
                 'username' => ltrim($node->filter('.profile-card-username')->text(), '@'),
                 'display_name' => $node->filter('.profile-card-fullname')->text(),
@@ -283,5 +284,12 @@ class NitterScraper
             return 'https://' . $imageURL;
         }
         return $imageURL;
+    }
+
+    private function extractTwitterIDFromBannerURL(string $attr)
+    {
+        $matches = [];
+        preg_match('/profile_banners%2F([0-9]+)%2F/', $attr, $matches);
+        return $matches[1];
     }
 }

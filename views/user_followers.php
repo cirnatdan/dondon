@@ -1,6 +1,6 @@
 <?php include('header.php'); ?>
 <main id="main">
-<?php include user_followers . phpdirname(__FILE__) . ('/widgets/user_header.php'); ?>
+<?php include dirname(__FILE__) . ('/widgets/user_header.php'); ?>
 <div class="article_wrap">
 <aside class="left_column">
 <div class="profile_icon_box">
@@ -25,11 +25,11 @@
 <button class="toot_button profile_sendto" style="width:calc(50% - 3px)"><div class="toot_button_label"><i class="fa fa-fw fa-pencil-square-o"></i><span><?=_('Toot to')?></span></div></button>
 <button class="toot_button profile_sendto" style="width:calc(50% - 3px)" privacy="direct"><div class="toot_button_label"><i class="fa fa-fw fa-envelope"></i><span><?=_('Message')?></span></div></button>
 </div>
-<?php include user_followers . phpdirname(__FILE__) . ('/widgets/user_recent_images.php'); ?>
+<?php include dirname(__FILE__) . ('/widgets/user_recent_images.php'); ?>
 </section>
-<?php include user_followers . phpdirname(__FILE__) . ('/widgets/side_who_to_follow.php'); ?>
-<?php include user_followers . phpdirname(__FILE__) . ('/widgets/side_trending.php'); ?>
-<?php include user_followers . phpdirname(__FILE__) . ('/widgets/side_footer.php'); ?>
+<?php include dirname(__FILE__) . ('/widgets/side_who_to_follow.php'); ?>
+<?php include dirname(__FILE__) . ('/widgets/side_trending.php'); ?>
+<?php include dirname(__FILE__) . ('/widgets/side_footer.php'); ?>
 </aside>
 <article class="center_column">
 <div id="js-follows_profile">

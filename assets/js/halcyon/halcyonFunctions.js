@@ -267,9 +267,13 @@ current_id = localStorage.getItem("current_id");
 current_instance = localStorage.getItem("current_instance");
 authtoken= localStorage.getItem("current_authtoken");
 api = new MastodonAPI({
-instance: "https://"+current_instance,
-api_user_token: authtoken
+    instance: "https://"+current_instance,
+    api_user_token: authtoken
 });
+localAPI = new MastodonAPI({
+    instance: location.protocol + '//' + location.host,
+    api_user_token: authtoken,
+})
 current_display_name = localStorage.getItem("current_display_name");
 current_acct = localStorage.getItem("current_acct");
 current_header = localStorage.getItem("current_header");

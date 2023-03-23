@@ -4,7 +4,7 @@ namespace HalcyonSuite\HalcyonForMastodon;
 class Mastodon extends \Mastodon_api {
 function __construct(){
 $appSettings = parse_ini_file(__DIR__. '/../../../config/config.ini',true);
-$this->datadir = __DIR__ . "/../../../data";
+$this->datadir = __DIR__ . "/../../../data/instances";
 $this->clientName = $appSettings["App"]["api_client_name"];
 $this->clientRedirectUris = $appSettings["App"]["api_client_website"].'/auth';
 $this->clientWebsite = $appSettings["App"]["api_client_website"];
@@ -47,6 +47,9 @@ return isset($this->instances[$domain]);
 private function readInstances() {
 $instlist = array_diff(scandir($this->datadir),array("..",".",".htaccess"));
 foreach($instlist as $index => $item) {
+    if (is_dir($this->datadir."/".$item)) {
+        continue;
+    }
 $itemname = "https://".substr($item,0,-4);
 $this->instances[$itemname] = json_decode(file_get_contents($this->datadir."/".$item),true);
 }
