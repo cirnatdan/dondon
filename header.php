@@ -7,7 +7,7 @@ include("language.php");
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Halcyon</title>
+<title>DonDon</title>
 <link rel="shortcut icon" href="/assets/images/favicon.ico">
 <link rel="gettext" type="application/x-po" href="/locale/<?=$locale?>/LC_MESSAGES/messages.po">
 <link rel="stylesheet" href="/assets/css/style.css" media="all">
