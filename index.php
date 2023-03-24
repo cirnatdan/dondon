@@ -488,6 +488,25 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) u
         return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'], json_encode($statuses));
     });
 
+    $r->addRoute('GET', '/api/v1/statuses/twitter.com:{twitterUsername:.+}:{statusId:.+/}', function (string $twitterUsername, string $statusId) use ($container) {
+        $token = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (count($token) !== 2 || $token[0] !== 'Bearer') {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+
+        /** @var \App\AccessTokenRepository $accessTokenRepository */
+        $accessTokenRepository = $container->get(\App\AccessTokenRepository::class);
+        $accessToken = $accessTokenRepository->findAccessToken($token[1]);
+        if (!$accessToken) {
+            return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');
+        }
+
+        /** @var \App\NitterScraper $nitterScraper */
+        $nitterScraper = $container->get(\App\NitterScraper::class);
+
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'], json_encode($nitterScraper->getTweet($statusId)));
+    });
+
     $r->addRoute('GET', '/api/{param:.+}', function (string $param) use ($container) {
         $url = parse_url($_SERVER['REQUEST_URI']);
         $query = $url['query'] ?? '';
@@ -561,7 +580,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) u
                     json_encode($nitterScraper->getTweetContext($statusId)),
                 );
             }
-        }elseif (preg_match('|/api/v1/statuses/(.*)/|', $mastodonRequestUri, $matches)) {
+        } elseif (preg_match('|/api/v1/statuses/(.*)/|', $mastodonRequestUri, $matches)) {
             $statusId = $matches[1];
             if (preg_match('/@(.+)@twitter.com/', $_SERVER['HTTP_REFERER'] ?? '', $matches)) {
                 return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'],

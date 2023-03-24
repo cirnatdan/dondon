@@ -83,9 +83,8 @@ class NitterScraper
         return $crawler->filter('.timeline-item ')->each(function (Crawler $node) use ($account) {
             $tweetID = filter_var($node->filter('.tweet-link')->attr('href'), FILTER_SANITIZE_NUMBER_INT);
 
-            //print_r($node->filter('.tweet-body > .attachments')->html());
             return [
-                'id' => $tweetID,
+                'id' => 'twitter.com:' . $account['username'] . ':' . $tweetID,
                 'created_at' => \DateTimeImmutable::createFromFormat('M d, Y · h:i A e', $node->filter('.tweet-date > a')->attr('title'))->format(\DateTimeImmutable::ATOM),
                 'in_reply_to_id' => null,
                 'in_reply_to_account_id' => null,
@@ -106,7 +105,7 @@ class NitterScraper
                 'filtered' => [],
                 'reblog' => $node->filter('.tweet-body > div > .retweet-header')->count()
                     ?  [
-                        'id' => $tweetID,
+                        'id' => 'twitter.com:' . str_replace('@', '', $node->filter('.tweet-body > div > .tweet-header > .tweet-name-row > .fullname-and-username > a.username')->attr('title')) . ':' . $tweetID,
                         'created_at' => \DateTimeImmutable::createFromFormat('M d, Y · h:i A e', $node->filter('.tweet-date > a')->attr('title'))->format(\DateTimeImmutable::ATOM),
                         'in_reply_to_id' => null,
                         'in_reply_to_account_id' => null,
@@ -187,7 +186,37 @@ class NitterScraper
                     ] : null,
                 'application' => null,
                 'account' => $account,
-                'media_attachments' => [],
+                'media_attachments' => $node->filter('.tweet-body > .attachments')->count() > 0
+                    ? array_merge(
+                        $node->filter('.tweet-body > .attachments > .gallery-row > .attachment > a')->each(function(Crawler $node) use($tweetID) {
+                            return [
+                                'id' => $tweetID, // TODO add unique image ids
+                                'type' => 'image',
+                                'url' => 'https://nitter.net' . $node->attr('href'),
+                                'preview_url' => 'https://nitter.net' . $node->filter('img')->attr('src'),
+                                'preview_remote_url' => null,
+                                'text_url' => null,
+                                'meta' => [],
+                                'description' => null,
+                                'blurhash' => 'UHSF-Day-;j[-paybHkC~qofRjj[9Fj[t7WB', // TODO
+                            ];
+                        }),
+                        $node->filter('.tweet-body > .attachments > .gallery-video > .video-container > video')->each(function (Crawler $node) use ($tweetID) {
+                            return [
+                                'id' => $tweetID, // TODO add unique image ids
+                                'type' => 'video',
+                                'url' => 'https://nitter.net' . $node->attr('data-url'),
+                                'preview_url' => 'https://nitter.net' . $node->attr('poster'),
+                                'remote_url' => 'https://nitter.net' . $node->attr('data-url'),
+                                'preview_remote_url' => null,
+                                'text_url' => null,
+                                'meta' => [],
+                                'description' => null,
+                                'blurHash' => 'UHH_lTDi?HWARN-=9FNG4m~WtSt5-;D$WYxu',
+                            ];
+                        })
+                    )
+                    : [],
                 'mentions' => [],
                 'tags' => [],
                 'emojis' => [],
@@ -205,8 +234,9 @@ class NitterScraper
         $node = $crawler->filter('.main-tweet > .timeline-item > .tweet-body');
 
         $twitterUsername = ltrim($node->filter('div > .tweet-header > .tweet-name-row > .fullname-and-username > a.username')->attr('title'), '@');
+        $account = $this->lookupAccount($twitterUsername);
         return [
-            'id' => $tweetID,
+            'id' => 'twitter.com:' . $account['username'] . ':' . $tweetID,
             'created_at' => \DateTimeImmutable::createFromFormat('M d, Y · h:i A e', $node->filter('.tweet-date > a')->attr('title'))->format(\DateTimeImmutable::ATOM),
             'in_reply_to_id' => null,
             'in_reply_to_account_id' => null,
@@ -227,7 +257,7 @@ class NitterScraper
             'filtered' => [],
             'reblog' => null,
             'application' => null,
-            'account' => $this->lookupAccount($twitterUsername),
+            'account' => $account,
             'media_attachments' => $node->filter('.attachments')->count() > 0
                 ? array_merge(
                     $node->filter('.attachments > .gallery-row > .attachment > a')->each(function(Crawler $node) use($tweetID) {
