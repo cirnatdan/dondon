@@ -53,7 +53,7 @@ class NitterScraper
         if (ltrim(strtolower($node->filter('.profile-card-username')->text()), '@') === strtolower($twitterUsername)) {
             return [
                 'id' => '@' . $twitterUsername . '@twitter.com',
-                'twitter_id' => $this->extractTwitterIDFromBannerURL($node->filter('.profile-banner > a')->attr('href')),
+                'twitter_id' => $node->filter('.profile_banner > a')->getNode(0) !== null ? $this->extractTwitterIDFromBannerURL($node->filter('.profile-banner > a')->attr('href')) : null,
                 'acct' => ltrim($node->filter('.profile-card-username')->text(), '@') . '@twitter.com',
                 'username' => ltrim($node->filter('.profile-card-username')->text(), '@'),
                 'display_name' => $node->filter('.profile-card-fullname')->text(),

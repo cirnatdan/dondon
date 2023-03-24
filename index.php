@@ -57,6 +57,9 @@ $container->add(\Symfony\Contracts\HttpClient\HttpClientInterface::class, functi
 $container->add(\Symfony\Component\HttpKernel\HttpCache\StoreInterface::class, \Symfony\Component\HttpKernel\HttpCache\Store::class)
     ->addArgument(__DIR__ . '/data/nitter-cache');
 
+$container->add(\App\TweeterIDDotComAPI::class)
+    ->addArgument(\Symfony\Contracts\HttpClient\HttpClientInterface::class);
+
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) use ($container) {
     $r->addRoute('GET', '/', function () {
         ob_start();
@@ -499,9 +502,16 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) u
             if (count($twitterAccounts) > 0) {
                 /** @var \App\UserRepository $userRepository */
                 $userRepository = $container->get(\App\UserRepository::class);
+                $tweeterIDDotComAPI = $container->get(\App\TweeterIDDotComAPI::class);
+                /** @var \App\TweeterIDDotComAPI $tweeterIDDotComAPI */
+                if ($twitterAccounts[0]['twitter_id'] === null) {
+                    $twitterAccounts[0]['twitter_id'] = $tweeterIDDotComAPI->getTwitterID($twitterAccounts[0]['username']);
+                }
                 $user = $userRepository->findByIdOnInstance(intval($twitterAccounts[0]['twitter_id']), 'twitter.com');
                 if (null === $user) {
-                    $userRepository->save($twitterAccounts[0]['username'], 'twitter.com', intval($twitterAccounts[0]['twitter_id']));
+                    if (!in_array($twitterAccounts[0]['twitter_id'], [null, 0, 'error-em'])) {
+                        $userRepository->save($twitterAccounts[0]['username'], 'twitter.com', intval($twitterAccounts[0]['twitter_id']));
+                    }
                 }
                 $response = [];
                 $response['accounts'] = array_merge($response['accounts'] ?? [], $twitterAccounts);
