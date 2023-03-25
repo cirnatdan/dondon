@@ -488,7 +488,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) u
         return new \Amp\Http\Server\Response(200, ['content-type' => 'application/json'], json_encode($statuses));
     });
 
-    $r->addRoute('GET', '/api/v1/statuses/twitter.com:{twitterUsername:.+}:{statusId:.+/}', function (string $twitterUsername, string $statusId) use ($container) {
+    $r->addRoute('GET', '/api/v1/statuses/twitter.com:{twitterUsername:.+}:{statusId:\d+}[/]', function (string $twitterUsername, string $statusId) use ($container) {
         $token = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
         if (count($token) !== 2 || $token[0] !== 'Bearer') {
             return new \Amp\Http\Server\Response(401, ['content-type' => 'text/html'], 'Unauthorized');

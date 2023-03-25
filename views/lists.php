@@ -1,4 +1,4 @@
-<?php include ('header.php'); ?>
+<?php include (__DIR__ . '/header.php'); ?>
 <style>
 .timeline_header .header_items {
 display:block;

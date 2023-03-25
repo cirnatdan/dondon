@@ -1,4 +1,4 @@
-<?php include ('header.php'); ?>
+<?php include (__DIR__ . '/header.php'); ?>
 <main id="main" class="home">
 <?php include dirname(__FILE__).('/widgets/lists_header.php'); ?>
 <div class="article_wrap">

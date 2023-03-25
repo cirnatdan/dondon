@@ -1,4 +1,4 @@
-<?php include ('header.php'); ?>
+<?php include (__DIR__ . '/header.php'); ?>
 <main id="main">
 <div class="article_wrap">
 <aside class="left_column">
