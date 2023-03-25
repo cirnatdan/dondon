@@ -220,7 +220,8 @@ class NitterScraper
                 'mentions' => [],
                 'tags' => [],
                 'emojis' => [],
-                'card' => $node->filter('.tweet-body > .card')->getNode(0) !== null ? [
+                'card' => $node->filter('.tweet-body > .card')->getNode(0) !== null
+                    && $node->filter('.tweet-body > .card > .card-container')->getNode(0) !== null ? [
                         'url' => $node->filter('.tweet-body > .card > .card-container')->attr('href'),
                         'title' => $node->filter('.tweet-body > .card > .card-container > .card-content-container > .card-content > .card-title')->text(),
                         'description' => $node->filter('.tweet-body > .card > .card-container > .card-content-container > .card-content > .card-description')->text(),
