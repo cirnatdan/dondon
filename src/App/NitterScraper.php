@@ -301,7 +301,8 @@ class NitterScraper
             'mentions' => [],
             'tags' => [],
             'emojis' => [],
-            'card' => $node->filter('.card')->getNode(0) !== null ? [
+            'card' => $node->filter('.card')->getNode(0) !== null
+                && $node->filter('.card > .card-container') ->getNode(0) !== null ? [
                     'url' => $node->filter('.card > .card-container')->attr('href'),
                     'title' => $node->filter('.card > .card-container > .card-content-container > .card-content > .card-title')->text(),
                     'description' => $node->filter('.card > .card-container > .card-content-container > .card-content > .card-description')->text(),
