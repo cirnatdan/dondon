@@ -220,7 +220,15 @@ class NitterScraper
                 'mentions' => [],
                 'tags' => [],
                 'emojis' => [],
-                'card' => null,
+                'card' => $node->filter('.tweet-body > .card')->getNode(0) !== null ? [
+                        'url' => $node->filter('.tweet-body > .card > .card-container')->attr('href'),
+                        'title' => $node->filter('.tweet-body > .card > .card-container > .card-content-container > .card-content > .card-title')->text(),
+                        'description' => $node->filter('.tweet-body > .card > .card-container > .card-content-container > .card-content > .card-description')->text(),
+                        'type' => 'link',
+                        'image' => $node->filter('.tweet-body > .card > .card-container > .card-image-container > .card-image')->count() > 0
+                            ? 'https://nitter.net' . $node->filter('.tweet-body > .card > .card-container > .card-image-container > .card-image > img')->attr('src')
+                            : null,
+                    ] : null,
                 'poll' => null,
            ];
         });
@@ -292,7 +300,15 @@ class NitterScraper
             'mentions' => [],
             'tags' => [],
             'emojis' => [],
-            'card' => null,
+            'card' => $node->filter('.card')->getNode(0) !== null ? [
+                    'url' => $node->filter('.card > .card-container')->attr('href'),
+                    'title' => $node->filter('.card > .card-container > .card-content-container > .card-content > .card-title')->text(),
+                    'description' => $node->filter('.card > .card-container > .card-content-container > .card-content > .card-description')->text(),
+                    'type' => 'link',
+                    'image' => $node->filter('.card > .card-container > .card-image-container > .card-image')->count() > 0
+                        ? 'https://nitter.net' . $node->filter('.card > .card-container > .card-image-container > .card-image > img')->attr('src')
+                        : null,
+                ] : null,
             'poll' => null,
         ];
 
