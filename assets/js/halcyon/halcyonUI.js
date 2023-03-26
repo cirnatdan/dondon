@@ -2183,6 +2183,9 @@ $("#hide_ffdl").click(function() {
 localStorage.hide_firefox_download = "true";
 $("#widget_ffdl").slideUp();
 });
+$("#hide_revenuehits").click(function() {
+    $("#widget_revenuehits").slideUp();
+});
 $("#search_form").focus(function() {
 if($("#search_form").val() == "") searchlocalfill();
 else searchremotefill($("#search_form").val());
