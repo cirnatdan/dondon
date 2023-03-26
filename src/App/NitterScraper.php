@@ -220,16 +220,7 @@ class NitterScraper
                 'mentions' => [],
                 'tags' => [],
                 'emojis' => [],
-                'card' => $node->filter('.tweet-body > .card')->getNode(0) !== null
-                    && $node->filter('.tweet-body > .card > .card-container')->getNode(0) !== null ? [
-                        'url' => $node->filter('.tweet-body > .card > .card-container')->attr('href'),
-                        'title' => $node->filter('.tweet-body > .card > .card-container > .card-content-container > .card-content > .card-title')->text(),
-                        'description' => $node->filter('.tweet-body > .card > .card-container > .card-content-container > .card-content > .card-description')->text(),
-                        'type' => 'link',
-                        'image' => $node->filter('.tweet-body > .card > .card-container > .card-image-container > .card-image')->count() > 0
-                            ? 'https://nitter.net' . $node->filter('.tweet-body > .card > .card-container > .card-image-container > .card-image > img')->attr('src')
-                            : null,
-                    ] : null,
+                'card' => $this->parseCard($node->filter('.tweet-body')),
                 'poll' => null,
            ];
         });
@@ -301,16 +292,7 @@ class NitterScraper
             'mentions' => [],
             'tags' => [],
             'emojis' => [],
-            'card' => $node->filter('.card')->getNode(0) !== null
-                && $node->filter('.card > .card-container') ->getNode(0) !== null ? [
-                    'url' => $node->filter('.card > .card-container')->attr('href'),
-                    'title' => $node->filter('.card > .card-container > .card-content-container > .card-content > .card-title')->text(),
-                    'description' => $node->filter('.card > .card-container > .card-content-container > .card-content > .card-description')->text(),
-                    'type' => 'link',
-                    'image' => $node->filter('.card > .card-container > .card-image-container > .card-image')->count() > 0
-                        ? 'https://nitter.net' . $node->filter('.card > .card-container > .card-image-container > .card-image > img')->attr('src')
-                        : null,
-                ] : null,
+            'card' => $this->parseCard($node),
             'poll' => null,
         ];
 
@@ -339,5 +321,33 @@ class NitterScraper
         $matches = [];
         preg_match('/profile_banners%2F([0-9]+)%2F/', $attr, $matches);
         return $matches[1];
+    }
+
+    private function parseCard(Crawler $tweetBodyNode): ?array
+    {
+        if ($tweetBodyNode->filter('.card > .card-container')->getNode(0) !== null) {
+           return [
+               'url' => $tweetBodyNode->filter('.card > .card-container')->attr('href'),
+               'title' => $tweetBodyNode->filter('.card > .card-container > .card-content-container > .card-content > .card-title')->text(),
+               'description' => $tweetBodyNode->filter('.card > .card-container > .card-content-container > .card-content > .card-description')->text(),
+               'type' => 'link',
+               'image' => $tweetBodyNode->filter('.card > .card-container > .card-image-container > .card-image')->count() > 0
+                   ? 'https://nitter.net' . $tweetBodyNode->filter('.card > .card-container > .card-image-container > .card-image > img')->attr('src')
+                   : null,
+              ];
+        }
+
+        // Mastodon doesn't support quotes. We'll parse them as link "cards"
+        if ($tweetBodyNode->filter('.quote')->getNode(0) !== null) {
+            return [
+                'url' => 'https://twitter.com' . $tweetBodyNode->filter('.quote > .quote-link')->attr('href'),
+                'title' => $tweetBodyNode->filter('.quote > .tweet-name-row > .fullname-and-username > .fullname')->text(),
+                'description' => $tweetBodyNode->filter('.quote > .quote-text')->text(),
+                'type' => 'link',
+                'image' => 'https://nitter.net' . $tweetBodyNode->filter('.quote > .tweet-name-row > .fullname-and-username > img.avatar')->attr('src')
+            ];
+        }
+
+        return null;
     }
 }
