@@ -56,9 +56,9 @@ $('.overlay_confirm_text').text(__("Are you sure that you want to mute this user
 $('.overlay_confirm_yes').click(function() {
 $('.close_button').click();
 api.post('accounts/'+mid+'/mute', function (data) {
-putMessage(__("You'll no longer receive notifications from this user"));
-return false;
-});
+    putMessage(__("You'll no longer receive notifications from this user"));
+    return false;
+}, null, getRandom(), true);
 });
 });
 $(document).on('click','.muting_button', function(e) {
