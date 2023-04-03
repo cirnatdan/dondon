@@ -167,10 +167,14 @@ function resetApp() {
 current_id = localStorage.getItem("current_id");
 current_instance = localStorage.getItem("current_instance");
 authtoken= localStorage.getItem("current_authtoken");
-api = new MastodonAPI({
-instance: 'https://'+current_instance,
-api_user_token: authtoken
-});
+    api = new MastodonAPI({
+        instance: 'https://' + current_instance,
+        api_user_token: authtoken
+    });
+    localAPI = new MastodonAPI({
+        instance: location.protocol + '//' + location.host,
+        api_user_token: authtoken,
+    })
 api.get("accounts/verify_credentials",function(AccountObj) {
 AccountObj.display_name = htmlEscape(AccountObj.display_name);
 for(var i=0;i<AccountObj.emojis.length;i++) {
