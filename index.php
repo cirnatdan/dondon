@@ -68,7 +68,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) u
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
-    $r->addRoute('GET', '/login', function () {
+    $r->addRoute('GET', '/login[/]', function () {
         ob_start();
         chdir(__DIR__ . '/views/login');
         include ('login.php');
@@ -76,7 +76,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) u
         return new \Amp\Http\Server\Response(200, ['content-type' => 'text/html'], $content);
     });
 
-    $r->addRoute('POST', '/login', function () {
+    $r->addRoute('POST', '/login[/]', function () {
         error_log('LOGIN');
         ob_start();
         chdir(__DIR__ . '/views/login');

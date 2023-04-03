@@ -179,8 +179,8 @@ api.get("accounts/verify_credentials",function(AccountObj) {
 AccountObj.display_name = htmlEscape(AccountObj.display_name);
 for(var i=0;i<AccountObj.emojis.length;i++) {
 AccountObj.display_name = AccountObj.display_name.replace(new RegExp(":"+AccountObj.emojis[i].shortcode+":","g"),"<img src='"+AccountObj.emojis[i].url+"' class='emoji'>");
-current_filters = new Array;
 }
+    current_filters = new Array;
 localStorage.setItem("current_display_name",AccountObj["display_name"]);
 localStorage.setItem("current_acct",AccountObj["acct"]);
 localStorage.setItem("current_header",AccountObj["header"]);
