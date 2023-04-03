@@ -23,7 +23,8 @@ View <span></span> new Toots
 <section class="side_widgets_wrap">
 <?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
 <?php include dirname(__FILE__).('/widgets/side_trending.php'); ?>
-<?php include dirname(__FILE__).('/widgets/side_revenuehits_ad.php'); ?>
+<?php include dirname(__FILE__).('/widgets/side_adsterra_ad.php'); ?>
+<?php //include dirname(__FILE__).('/widgets/side_revenuehits_ad.php'); ?>
 </section>
 <?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
 </aside>
