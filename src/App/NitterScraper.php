@@ -81,7 +81,9 @@ class NitterScraper
         $account = $this->lookupAccount($twitterUsername);
 
         return $crawler->filter('.timeline-item ')->each(function (Crawler $node) use ($account) {
-            $tweetID = filter_var($node->filter('.tweet-link')->attr('href'), FILTER_SANITIZE_NUMBER_INT);
+            $matches = [];
+            preg_match('/status\/(\d+)/', $node->filter('.tweet-link')->attr('href'), $matches);
+            $tweetID = $matches[1];
 
             return [
                 'id' => 'twitter.com:' . $account['username'] . ':' . $tweetID,
