@@ -338,7 +338,8 @@ class NitterScraper
         }
 
         // Mastodon doesn't support quotes. We'll parse them as link "cards"
-        if ($tweetBodyNode->filter('.quote')->getNode(0) !== null) {
+        if ($tweetBodyNode->filter('.quote')->getNode(0) !== null
+            && $tweetBodyNode->filter('.quote > .quote-link')->getNode(0) !== null) {
             return [
                 'url' => 'https://twitter.com' . $tweetBodyNode->filter('.quote > .quote-link')->attr('href'),
                 'title' => $tweetBodyNode->filter('.quote > .tweet-name-row > .fullname-and-username > .fullname')->text(),
