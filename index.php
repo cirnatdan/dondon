@@ -24,6 +24,7 @@ if ($filePath && is_file($filePath)) {
         if (strtolower(substr($filePath, -4)) == '.php') {
             // php file; serve through interpreter
             include $filePath;
+            return true;
         } else {
             // asset file; serve from filesystem
             return false;
@@ -590,6 +591,20 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) u
         }
 
         return new \Amp\Http\Server\Response(421, ['content-type' => 'text/html'], 'Not implemented');
+    });
+
+    $r->addRoute('GET', '/proxy/video/{param:[A-F0-9]+}/{url:.+}', function (string $param, string $url) use ($container) {
+        error_log('VIDEO ROUTE CORRECT ');
+        $content = file_get_contents('https://nitter.net/video/' . $param . '/' . urlencode($url));
+
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'video/mp4'], $content);
+    });
+
+    $r->addRoute('GET', '/video/{param:[A-F0-9]+}/{url:.+}', function (string $param, string $url) use ($container) {
+        error_log('VIDEO ROUTE CORRECT ');
+        $content = file_get_contents('https://nitter.net/video/' . $param . '/' . urlencode($url));
+
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'video/mp4'], $content);
     });
 });
 

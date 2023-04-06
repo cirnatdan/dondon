@@ -25,7 +25,7 @@ var vidprev = "";
 if(status.media_attachments[i].preview_url != status.media_attachments[i].url) vidprev = "&preview="+encodeURIComponent(status.media_attachments[i].preview_url);
 media_embeds.push(`
 <div class="media_attachment" otype="video/gifv" mediacount="${i}">
-<iframe src="/media/video.php?url=${encodeURIComponent(status.media_attachments[i].url)}&title=${encodeURIComponent(status.media_attachments[i].description)+vidprev}" title="${status.media_attachments[i].description}" frameborder="0" allowfullscreen></iframe>
+<iframe src="/media/nitter_video.php?url=${encodeURIComponent(status.media_attachments[i].url)}&title=${encodeURIComponent(status.media_attachments[i].description)+vidprev}" title="${status.media_attachments[i].description}" frameborder="0" allowfullscreen></iframe>
 <div class='sensitive_alert'${blurbackground}>
 <span class="text1">${__('Sensitive content')}</span>
 <span class="text2">${status.media_attachments[i].description}</span>

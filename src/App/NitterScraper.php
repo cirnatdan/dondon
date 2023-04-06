@@ -72,11 +72,13 @@ class NitterScraper
     public function getAccountTweets(string $username, bool $withReplies = false)
     {
         $twitterUsername = explode('@', $username)[1];
-        $url = 'https://nitter.it/' . rawurlencode($twitterUsername);
+        $url = 'https://nitter.net/' . rawurlencode($twitterUsername);
         if ($withReplies) {
             $url .= '/with_replies';
         }
-        $crawler = $this->goutteClient->request('GET', $url);
+        $crawler = $this->goutteClient->request('GET', $url, [], [], [
+            'HTTP_COOKIE' => 'hlsPlayback=on',
+        ]);
 
         $account = $this->lookupAccount($twitterUsername);
 
@@ -168,9 +170,9 @@ class NitterScraper
                                     return [
                                         'id' => $tweetID, // TODO add unique image ids
                                         'type' => 'video',
-                                        'url' => 'https://nitter.net' . $node->attr('data-url'),
+                                        'url' => '/proxy' . $node->attr('data-url'),
                                         'preview_url' => 'https://nitter.net' . $node->attr('poster'),
-                                        'remote_url' => 'https://nitter.net' . $node->attr('data-url'),
+                                        'remote_url' => '/proxy' . $node->attr('data-url'),
                                         'preview_remote_url' => null,
                                         'text_url' => null,
                                         'meta' => [],
@@ -207,9 +209,9 @@ class NitterScraper
                             return [
                                 'id' => $tweetID, // TODO add unique image ids
                                 'type' => 'video',
-                                'url' => 'https://nitter.net' . $node->attr('data-url'),
+                                'url' => '/proxy' . $node->attr('data-url'),
                                 'preview_url' => 'https://nitter.net' . $node->attr('poster'),
-                                'remote_url' => 'https://nitter.net' . $node->attr('data-url'),
+                                'remote_url' => '/proxy' . $node->attr('data-url'),
                                 'preview_remote_url' => null,
                                 'text_url' => null,
                                 'meta' => [],
@@ -279,9 +281,9 @@ class NitterScraper
                         return [
                             'id' => $tweetID, // TODO add unique image ids
                             'type' => 'video',
-                            'url' => 'https://nitter.net' . $node->attr('data-url'),
+                            'url' => '/proxy' . $node->attr('data-url'),
                             'preview_url' => 'https://nitter.net' . $node->attr('poster'),
-                            'remote_url' => 'https://nitter.net' . $node->attr('data-url'),
+                            'remote_url' => '/proxy' . $node->attr('data-url'),
                             'preview_remote_url' => null,
                             'text_url' => null,
                             'meta' => [],
