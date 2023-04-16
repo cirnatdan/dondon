@@ -27,9 +27,15 @@ Your browser does not support the video tag.
         // If no native HLS support, check if HLS.js is supported
         //
     } else if (Hls.isSupported()) {
-        var hls = new Hls();
+        var hls = new Hls({autoStartLoad: false});
         hls.loadSource(videoSrc);
         hls.attachMedia(video);
+
+        video.onplay = (event) =>  {
+            hls.loadLevel = hls.levels.length - 1;
+            hls.startLoad();
+            video.play();
+        }
     }
 </script>
 </body>
