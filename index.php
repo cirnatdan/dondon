@@ -32,6 +32,8 @@ if ($filePath && is_file($filePath)) {
     }
 }
 
+error_log($_SERVER['REQUEST_URI']);
+
 $container = new \League\Container\Container();
 $container->defaultToShared(true);
 $container->add(\PDO::class)
@@ -591,6 +593,67 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) u
         }
 
         return new \Amp\Http\Server\Response(421, ['content-type' => 'text/html'], 'Not implemented');
+    });
+
+    $r->addRoute('GET', '/.well-known/webfinger', function () use ($container) {
+        error_log($_GET['resource']);
+        if (preg_match('/acct:(.+)@.+\..+/', $_GET['resource'], $matches)) {
+            $username = $matches[1];
+        } else {
+            return new \Amp\Http\Server\Response(404, ['content-type' => 'text/html'], 'Not found');
+        }
+
+        /** @var \App\NitterScraper $nitterScraper */
+        $nitterScraper = $container->get(\App\NitterScraper::class);
+        $twitterAccount = $nitterScraper->lookupAccount($username);
+        if (empty($twitterAccount)) {
+            return new \Amp\Http\Server\Response(404, ['content-type' => 'text/html'], 'Not found');
+        }
+
+        $webfinger = new \ActivityPhp\Server\Http\WebFinger(
+            [
+                'subject' => $_GET['resource'],
+                'aliases' => [
+                    'https://twitter.com/' . $username,
+                ],
+                'links' => [
+                    [
+                        'rel' => 'self',
+                        'type' => 'application/activity+json',
+                        'href' => 'https://' . $_SERVER['HTTP_HOST'] . '/users/' . $username,
+                    ]
+                ]
+            ]
+        );
+
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'application/jrd+json'], json_encode($webfinger->toArray()));
+    });
+
+    $r->addRoute('GET', '/users/{username:[A-Za-z0-9_]+}', function (string $username) use ($container) {
+        /** @var \App\NitterScraper $nitterScraper */
+        $nitterScraper = $container->get(\App\NitterScraper::class);
+        $twitterAccount = $nitterScraper->lookupAccount($username);
+        if (empty($twitterAccount)) {
+            return new \Amp\Http\Server\Response(404, ['content-type' => 'text/html'], 'Not found');
+        }
+
+        $actor = new \ActivityPhp\Type\Extended\Actor\Person();
+        $actor->set('@context', [
+            'https://www.w3.org/ns/activitystreams',
+            'https://w3id.org/security/v1',
+        ])
+        ->set('id', 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'])
+        ->set('name', $twitterAccount['display_name'])
+        ->set('preferredUsername', $username)
+        ->set('inbox', 'https://' . $_SERVER['HTTP_HOST'] . '/inbox')
+        ->set('outbox', 'https://' . $_SERVER['HTTP_HOST'] . '/outbox')
+        ->set('publicKey', [
+            'id' => 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . '#main-key',
+            'owner' => 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+            'publicKeyPem' => file_get_contents(__DIR__ . '/public.pem'),
+        ]);
+
+        return new \Amp\Http\Server\Response(200, ['content-type' => 'application/activity+json'], json_encode($actor->toArray()));
     });
 
     $r->addRoute('GET', '/proxy/video/{param:[A-F0-9]+}/{url:.+}', function (string $param, string $url) use ($container) {

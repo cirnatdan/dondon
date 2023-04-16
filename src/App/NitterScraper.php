@@ -49,6 +49,9 @@ class NitterScraper
         $crawler = $this->goutteClient->request('GET', 'https://nitter.net/' . rawurlencode($twitterUsername));
 
         $node = $crawler->filter('.profile-tabs');
+        if ($node->getNode(0) === null) {
+            return [];
+        }
 
         if (ltrim(strtolower($node->filter('.profile-card-username')->text()), '@') === strtolower($twitterUsername)) {
             return [
@@ -82,8 +85,11 @@ class NitterScraper
 
         $account = $this->lookupAccount($twitterUsername);
 
-        return $crawler->filter('.timeline-item ')->each(function (Crawler $node) use ($account) {
+        return array_filter($crawler->filter('.timeline-item ')->each(function (Crawler $node) use ($account) {
             $matches = [];
+            if ($node->filter('.tweet-link')->count() === 0) {
+                return null;
+            }
             preg_match('/status\/(\d+)/', $node->filter('.tweet-link')->attr('href'), $matches);
             $tweetID = $matches[1];
 
@@ -227,7 +233,7 @@ class NitterScraper
                 'card' => $this->parseCard($node->filter('.tweet-body')),
                 'poll' => null,
            ];
-        });
+        }));
     }
 
     public function getTweet(string $tweetID): array
